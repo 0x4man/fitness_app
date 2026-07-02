@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../widgets/app_snackbar.dart';
 import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/app_snackbar.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import 'login_screen.dart';
@@ -35,8 +35,11 @@ class _SignupScreenState extends State<SignupScreen> {
         email: _emailController.text,
         password: _passwordController.text,
       );
-      // Navigation to Home happens automatically via the auth
-      // state stream in main.dart.
+      // AuthGate (the app's root screen) already listens to the auth
+      // stream and rebuilds itself, but it's underneath this screen in
+      // the navigation stack. Popping back to it makes the change
+      // visible immediately instead of waiting for the next app launch.
+      if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
       if (mounted) showAppMessage(context, _authService.friendlyError(e));
     } finally {
@@ -71,7 +74,8 @@ class _SignupScreenState extends State<SignupScreen> {
                 const SizedBox(height: 8),
                 const Text(
                   'Start logging your workouts today.',
-                  style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
+                  style:
+                      TextStyle(fontSize: 15, color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 32),
                 CustomTextField(

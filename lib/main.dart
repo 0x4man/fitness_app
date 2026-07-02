@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'theme/app_theme.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/auth/login_screen.dart';
-import 'screens/home_placeholder_screen.dart';
+import 'screens/main_navigation_screen.dart';
 import 'screens/profile_setup_screen.dart';
 import 'services/auth_service.dart';
 import 'services/profile_service.dart';
@@ -70,7 +70,7 @@ class AuthGate extends StatelessWidget {
                 );
               }
               return profileSnapshot.data == true
-                  ? const HomePlaceholderScreen()
+                  ? const MainNavigationScreen()
                   : const ProfileSetupScreen();
             },
           );

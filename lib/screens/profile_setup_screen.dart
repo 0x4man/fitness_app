@@ -6,7 +6,7 @@ import '../widgets/app_snackbar.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/selectable_chip.dart';
-import 'home_placeholder_screen.dart';
+import 'main_navigation_screen.dart';
 
 const List<String> _genders = ['Male', 'Female', 'Other'];
 
@@ -19,7 +19,7 @@ const List<Map<String, dynamic>> _goals = [
 
 /// Shown once, right after signup (or on login if the profile was
 /// never completed). Collects fitness details and writes them to
-/// Firestore via ProfileService, then routes to the Home Dashboard.
+/// Firestore via ProfileService, then routes to the Main Navigation Screen.
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
 
@@ -63,7 +63,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomePlaceholderScreen()),
+        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
       );
     } catch (e) {
       if (mounted) {
