@@ -17,7 +17,7 @@ class ComingSoonScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 56, color: AppColors.textSecondary.withOpacity(0.4)),
+            Icon(icon, size: 56, color: AppColors.textSecondary.withValues(alpha: 0.4)),
             const SizedBox(height: 16),
             Text(
               '$title — Coming Soon',

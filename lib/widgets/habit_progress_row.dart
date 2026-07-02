@@ -28,7 +28,7 @@ class HabitProgressRow extends StatelessWidget {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.12),
+            color: color.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(11),
           ),
           child: Icon(icon, size: 19, color: color),

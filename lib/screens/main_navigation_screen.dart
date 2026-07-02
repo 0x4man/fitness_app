@@ -3,6 +3,7 @@ import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import 'coming_soon_screen.dart';
 import 'home/home_dashboard_screen.dart';
+import 'workouts/workout_library_screen.dart';
 
 /// The main app shell after login/profile-setup. Hosts the bottom
 /// navigation bar with 5 tabs. Only Home is fully built right now —
@@ -17,14 +18,20 @@ class MainNavigationScreen extends StatefulWidget {
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
+  late final List<Widget> _tabs;
 
-  final List<Widget> _tabs = const [
-    HomeDashboardScreen(),
-    ComingSoonScreen(title: 'Workouts', icon: Icons.fitness_center_rounded),
-    ComingSoonScreen(title: 'Habits', icon: Icons.checklist_rounded),
-    ComingSoonScreen(title: 'Progress', icon: Icons.insights_rounded),
-    _ProfileTab(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _tabs = [
+      HomeDashboardScreen(
+          onStartWorkout: () => setState(() => _currentIndex = 1)),
+      const WorkoutLibraryScreen(),
+      const ComingSoonScreen(title: 'Habits', icon: Icons.checklist_rounded),
+      const ComingSoonScreen(title: 'Progress', icon: Icons.insights_rounded),
+      const _ProfileTab(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {

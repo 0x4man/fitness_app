@@ -13,7 +13,9 @@ import '../../widgets/habit_progress_row.dart';
 /// the placeholder cards once the Workout Tracker and Habit Tracker
 /// are built.
 class HomeDashboardScreen extends StatefulWidget {
-  const HomeDashboardScreen({super.key});
+  final VoidCallback? onStartWorkout;
+
+  const HomeDashboardScreen({super.key, this.onStartWorkout});
 
   @override
   State<HomeDashboardScreen> createState() => _HomeDashboardScreenState();
@@ -108,7 +110,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 const SizedBox(height: 22),
 
                 // Quick-start CTA — premium gradient hero card
-                _QuickStartCard(goal: _profile?.fitnessGoal),
+                _QuickStartCard(
+                    goal: _profile?.fitnessGoal, onTap: widget.onStartWorkout),
                 const SizedBox(height: 26),
 
                 // Stat cards grid
@@ -239,8 +242,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 /// the main "Start Workout" call to action on the dashboard.
 class _QuickStartCard extends StatelessWidget {
   final String? goal;
+  final VoidCallback? onTap;
 
-  const _QuickStartCard({this.goal});
+  const _QuickStartCard({this.goal, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -328,9 +332,7 @@ class _QuickStartCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 18),
                       ElevatedButton.icon(
-                        onPressed: () {
-                          // Will open Workout Library in a later step.
-                        },
+                        onPressed: onTap,
                         icon: const Icon(Icons.play_arrow_rounded, size: 20),
                         label: const Text(
                           'Start Workout',
