@@ -3,12 +3,15 @@ import '../../models/user_profile.dart';
 import '../../services/auth_service.dart';
 import '../../services/profile_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/app_header.dart';
 import '../../widgets/dashboard_stat_card.dart';
+import '../../widgets/habit_progress_row.dart';
 
-/// The main Home tab: greeting, BMI (calculated from the user's saved
-/// profile), a placeholder streak/today's-workout summary, and a
-/// quick-start CTA. Workout/habit data will populate the placeholder
-/// cards once the Workout Tracker and Habit Tracker are built.
+/// The main Home tab: branded header, greeting, BMI (calculated from
+/// the user's saved profile), a placeholder streak/today's-workout
+/// summary, and a quick-start CTA. Workout/habit data will populate
+/// the placeholder cards once the Workout Tracker and Habit Tracker
+/// are built.
 class HomeDashboardScreen extends StatefulWidget {
   const HomeDashboardScreen({super.key});
 
@@ -72,104 +75,49 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     return Scaffold(
       body: SafeArea(
+        bottom: false,
         child: RefreshIndicator(
           onRefresh: _loadProfile,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Branded header
+                const AppHeader(),
+                const SizedBox(height: 22),
+
                 // Greeting
                 Text(
-                  _greetingTime,
+                  '$_greetingTime, $_greetingName 👋',
                   style: const TextStyle(
-                      fontSize: 15, color: AppColors.textSecondary),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _greetingName,
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 21,
+                    fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
+                    height: 1.3,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 2),
+                Text(
+                  "Let's crush today's goals.",
+                  style: TextStyle(
+                      fontSize: 13.5,
+                      color: AppColors.textSecondary.withOpacity(0.9)),
+                ),
+                const SizedBox(height: 22),
 
-                // Quick-start CTA
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primary, AppColors.primaryDark],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Ready to train?',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              _profile?.fitnessGoal ??
-                                  'Start your first workout',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.85),
-                                fontSize: 13,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () {
-                                // Will open Workout Library in a later step.
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: AppColors.primary,
-                                minimumSize: const Size(140, 42),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: const Text(
-                                'Start Workout',
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(
-                        Icons.fitness_center_rounded,
-                        color: Colors.white24,
-                        size: 64,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
+                // Quick-start CTA — premium gradient hero card
+                _QuickStartCard(goal: _profile?.fitnessGoal),
+                const SizedBox(height: 26),
 
                 // Stat cards grid
                 Text(
                   'Your Stats',
                   style: TextStyle(
                     fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary.withOpacity(0.8),
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary.withOpacity(0.85),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -209,47 +157,71 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 26),
 
                 // Habit tracker glance
-                Text(
-                  "Today's Habits",
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary.withOpacity(0.8),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Today's Habits",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary.withOpacity(0.85),
+                      ),
+                    ),
+                    const Text(
+                      'View All',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(20),
+                    border:
+                        Border.all(color: const Color(0xFFF0F1F7), width: 1),
                     boxShadow: const [
                       BoxShadow(
                         color: AppColors.cardShadow,
-                        blurRadius: 12,
-                        offset: Offset(0, 4),
+                        blurRadius: 16,
+                        offset: Offset(0, 6),
                       ),
                     ],
                   ),
                   child: Column(
                     children: const [
-                      _HabitRow(
-                          icon: Icons.water_drop_outlined,
-                          label: 'Water Intake',
-                          value: '0 / 8 glasses'),
-                      Divider(height: 24),
-                      _HabitRow(
-                          icon: Icons.bedtime_outlined,
-                          label: 'Sleep',
-                          value: '0 / 8 hrs'),
-                      Divider(height: 24),
-                      _HabitRow(
-                          icon: Icons.egg_alt_outlined,
-                          label: 'Protein',
-                          value: '0 / 120 g'),
+                      HabitProgressRow(
+                        icon: Icons.water_drop_outlined,
+                        label: 'Water Intake',
+                        valueText: '0 / 8 glasses',
+                        progress: 0,
+                        color: Color(0xFF3B82F6),
+                      ),
+                      SizedBox(height: 18),
+                      HabitProgressRow(
+                        icon: Icons.bedtime_outlined,
+                        label: 'Sleep',
+                        valueText: '0 / 8 hrs',
+                        progress: 0,
+                        color: Color(0xFF8B5CF6),
+                      ),
+                      SizedBox(height: 18),
+                      HabitProgressRow(
+                        icon: Icons.egg_alt_outlined,
+                        label: 'Protein',
+                        valueText: '0 / 120 g',
+                        progress: 0,
+                        color: Color(0xFFF59E0B),
+                      ),
                     ],
                   ),
                 ),
@@ -263,35 +235,127 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 }
 
-class _HabitRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
+/// Premium gradient hero card with decorative background rings —
+/// the main "Start Workout" call to action on the dashboard.
+class _QuickStartCard extends StatelessWidget {
+  final String? goal;
 
-  const _HabitRow(
-      {required this.icon, required this.label, required this.value});
+  const _QuickStartCard({this.goal});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: AppColors.primary),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(22),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppColors.heroGradient,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 13,
-            color: AppColors.textSecondary,
-            fontWeight: FontWeight.w500,
-          ),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Decorative rings for visual depth
+            Positioned(
+              right: -30,
+              top: -40,
+              child: Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                      color: Colors.white.withOpacity(0.12), width: 18),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 10,
+              bottom: -50,
+              child: Container(
+                width: 90,
+                height: 90,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.08),
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.18),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          (goal ?? 'TODAY').toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.6,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      const Text(
+                        'Ready to train?',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 21,
+                          fontWeight: FontWeight.w700,
+                          height: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Your next session is waiting',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.85),
+                          fontSize: 12.5,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          // Will open Workout Library in a later step.
+                        },
+                        icon: const Icon(Icons.play_arrow_rounded, size: 20),
+                        label: const Text(
+                          'Start Workout',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 13.5),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppColors.primaryDark,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 18, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          elevation: 0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

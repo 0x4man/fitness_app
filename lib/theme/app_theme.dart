@@ -14,6 +14,13 @@ class AppColors {
   static const Color textSecondary = Color(0xFF6B7280);
   static const Color error = Color(0xFFE53E3E);
   static const Color cardShadow = Color(0x1A000000);
+
+  // Premium gradient used on hero/CTA cards across the app.
+  static const List<Color> heroGradient = [
+    Color(0xFF4F46E5),
+    Color(0xFF3D5AFE),
+    Color(0xFF00B8D9),
+  ];
 }
 
 class AppTheme {

@@ -24,11 +24,12 @@ class DashboardStatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFF0F1F7), width: 1),
         boxShadow: const [
           BoxShadow(
             color: AppColors.cardShadow,
-            blurRadius: 12,
-            offset: Offset(0, 4),
+            blurRadius: 16,
+            offset: Offset(0, 6),
           ),
         ],
       ),

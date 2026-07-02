@@ -30,41 +30,56 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _tabs),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) => setState(() => _currentIndex = index),
-        backgroundColor: Colors.white,
-        indicatorColor: AppColors.primary.withOpacity(0.12),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded, color: AppColors.primary),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.fitness_center_outlined),
-            selectedIcon:
-                Icon(Icons.fitness_center_rounded, color: AppColors.primary),
-            label: 'Workouts',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.checklist_outlined),
-            selectedIcon:
-                Icon(Icons.checklist_rounded, color: AppColors.primary),
-            label: 'Habits',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.insights_outlined),
-            selectedIcon:
-                Icon(Icons.insights_rounded, color: AppColors.primary),
-            label: 'Progress',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person_rounded, color: AppColors.primary),
-            label: 'Profile',
-          ),
-        ],
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x14000000),
+              blurRadius: 20,
+              offset: Offset(0, -6),
+            ),
+          ],
+        ),
+        child: NavigationBar(
+          selectedIndex: _currentIndex,
+          onDestinationSelected: (index) =>
+              setState(() => _currentIndex = index),
+          backgroundColor: Colors.white,
+          indicatorColor: AppColors.primary.withOpacity(0.12),
+          elevation: 0,
+          height: 66,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home_rounded, color: AppColors.primary),
+              label: 'Home',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.fitness_center_outlined),
+              selectedIcon:
+                  Icon(Icons.fitness_center_rounded, color: AppColors.primary),
+              label: 'Workouts',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.checklist_outlined),
+              selectedIcon:
+                  Icon(Icons.checklist_rounded, color: AppColors.primary),
+              label: 'Habits',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.insights_outlined),
+              selectedIcon:
+                  Icon(Icons.insights_rounded, color: AppColors.primary),
+              label: 'Progress',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.person_outline),
+              selectedIcon:
+                  Icon(Icons.person_rounded, color: AppColors.primary),
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
   }
