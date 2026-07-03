@@ -65,4 +65,46 @@ class WorkoutLogService {
     }
     return streak;
   }
+
+  /// Total sets logged per day for the last [days] days (including
+  /// today), oldest first — feeds the workout consistency bar chart.
+  Future<List<MapEntry<DateTime, int>>> getDailySetsLastNDays(int days) async {
+    final logs = await getHistory(limit: 200);
+    final byDay = <DateTime, int>{};
+    for (final log in logs) {
+      final day = _dateOnly(log.date);
+      byDay[day] = (byDay[day] ?? 0) + log.totalSets;
+    }
+
+    final now = _dateOnly(DateTime.now());
+    return List.generate(days, (i) {
+      final day = now.subtract(Duration(days: days - 1 - i));
+      return MapEntry(day, byDay[day] ?? 0);
+    });
+  }
+
+  /// Number of workouts within an inclusive date range (date-only).
+  Future<int> getWorkoutsBetween(DateTime start, DateTime end) async {
+    final logs = await getHistory(limit: 200);
+    final s = _dateOnly(start);
+    final e = _dateOnly(end);
+    return logs.where((log) {
+      final d = _dateOnly(log.date);
+      return !d.isBefore(s) && !d.isAfter(e);
+    }).length;
+  }
+
+  /// Convenience: (thisWeekCount, lastWeekCount) for week-over-week
+  /// comparison on the Progress Dashboard.
+  Future<(int, int)> getWeekOverWeekWorkouts() async {
+    final now = DateTime.now();
+    final startOfThisWeek =
+        _dateOnly(now).subtract(Duration(days: now.weekday - 1));
+    final startOfLastWeek = startOfThisWeek.subtract(const Duration(days: 7));
+    final endOfLastWeek = startOfThisWeek.subtract(const Duration(days: 1));
+
+    final thisWeek = await getWorkoutsBetween(startOfThisWeek, now);
+    final lastWeek = await getWorkoutsBetween(startOfLastWeek, endOfLastWeek);
+    return (thisWeek, lastWeek);
+  }
 }

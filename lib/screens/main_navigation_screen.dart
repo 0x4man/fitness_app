@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import 'coming_soon_screen.dart';
+import 'habits/habit_tracker_screen.dart';
 import 'home/home_dashboard_screen.dart';
 import 'profile/profile_screen.dart';
+import 'progress/progress_dashboard_screen.dart';
 import 'workouts/workout_library_screen.dart';
 
 /// The main app shell after login/profile-setup. Hosts the bottom
@@ -25,10 +26,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     super.initState();
     _tabs = [
       HomeDashboardScreen(
-          onStartWorkout: () => setState(() => _currentIndex = 1)),
+        onStartWorkout: () => setState(() => _currentIndex = 1),
+        onViewHabits: () => setState(() => _currentIndex = 2),
+      ),
       const WorkoutLibraryScreen(),
-      const ComingSoonScreen(title: 'Habits', icon: Icons.checklist_rounded),
-      const ComingSoonScreen(title: 'Progress', icon: Icons.insights_rounded),
+      const HabitTrackerScreen(),
+      const ProgressDashboardScreen(),
       const ProfileScreen(),
     ];
   }

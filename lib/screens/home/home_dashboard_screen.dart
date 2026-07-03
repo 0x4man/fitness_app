@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../models/habit_log.dart';
 import '../../models/user_profile.dart';
 import '../../services/auth_service.dart';
+import '../../services/habit_service.dart';
 import '../../services/profile_service.dart';
 import '../../services/workout_log_service.dart';
 import '../../theme/app_theme.dart';
@@ -15,8 +17,10 @@ import '../../widgets/habit_progress_row.dart';
 /// are built.
 class HomeDashboardScreen extends StatefulWidget {
   final VoidCallback? onStartWorkout;
+  final VoidCallback? onViewHabits;
 
-  const HomeDashboardScreen({super.key, this.onStartWorkout});
+  const HomeDashboardScreen(
+      {super.key, this.onStartWorkout, this.onViewHabits});
 
   @override
   State<HomeDashboardScreen> createState() => _HomeDashboardScreenState();
@@ -25,7 +29,9 @@ class HomeDashboardScreen extends StatefulWidget {
 class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   final _profileService = ProfileService();
   final _workoutLogService = WorkoutLogService();
+  final _habitService = HabitService();
   UserProfile? _profile;
+  HabitLog? _todayHabits;
   int _streak = 0;
   int _workoutsThisWeek = 0;
   bool _isLoading = true;
@@ -41,12 +47,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       _profileService.getProfile(),
       _workoutLogService.getCurrentStreak(),
       _workoutLogService.getWorkoutsThisWeek(),
+      _habitService.getTodayLog(),
     ]);
     if (mounted) {
       setState(() {
         _profile = results[0] as UserProfile?;
         _streak = results[1] as int;
         _workoutsThisWeek = results[2] as int;
+        _todayHabits = results[3] as HabitLog;
         _isLoading = false;
       });
     }
@@ -184,12 +192,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         color: AppColors.textPrimary.withOpacity(0.85),
                       ),
                     ),
-                    const Text(
-                      'View All',
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+                    GestureDetector(
+                      onTap: widget.onViewHabits,
+                      child: const Text(
+                        'View All',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                   ],
@@ -211,29 +222,38 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     ],
                   ),
                   child: Column(
-                    children: const [
+                    children: [
                       HabitProgressRow(
                         icon: Icons.water_drop_outlined,
                         label: 'Water Intake',
-                        valueText: '0 / 8 glasses',
-                        progress: 0,
-                        color: Color(0xFF3B82F6),
+                        valueText:
+                            '${_todayHabits?.waterGlasses ?? 0} / ${HabitGoals.waterGlasses} glasses',
+                        progress: ((_todayHabits?.waterGlasses ?? 0) /
+                                HabitGoals.waterGlasses)
+                            .clamp(0.0, 1.0),
+                        color: const Color(0xFF3B82F6),
                       ),
-                      SizedBox(height: 18),
+                      const SizedBox(height: 18),
                       HabitProgressRow(
                         icon: Icons.bedtime_outlined,
                         label: 'Sleep',
-                        valueText: '0 / 8 hrs',
-                        progress: 0,
-                        color: Color(0xFF8B5CF6),
+                        valueText:
+                            '${(_todayHabits?.sleepHours ?? 0).toStringAsFixed(1)} / ${HabitGoals.sleepHours.toStringAsFixed(0)} hrs',
+                        progress: ((_todayHabits?.sleepHours ?? 0) /
+                                HabitGoals.sleepHours)
+                            .clamp(0.0, 1.0),
+                        color: const Color(0xFF8B5CF6),
                       ),
-                      SizedBox(height: 18),
+                      const SizedBox(height: 18),
                       HabitProgressRow(
                         icon: Icons.egg_alt_outlined,
                         label: 'Protein',
-                        valueText: '0 / 120 g',
-                        progress: 0,
-                        color: Color(0xFFF59E0B),
+                        valueText:
+                            '${_todayHabits?.proteinGrams ?? 0} / ${HabitGoals.proteinGrams} g',
+                        progress: ((_todayHabits?.proteinGrams ?? 0) /
+                                HabitGoals.proteinGrams)
+                            .clamp(0.0, 1.0),
+                        color: AppColors.accent,
                       ),
                     ],
                   ),
