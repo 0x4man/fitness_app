@@ -24,6 +24,10 @@ dependencies:
   smooth_page_indicator: ^1.1.0
   fl_chart: ^0.68.0
 
+  # Networking
+  http: ^1.2.2
+  url_launcher: ^6.3.0
+
   # Local storage
   shared_preferences: ^2.2.2
 
@@ -34,4 +38,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  

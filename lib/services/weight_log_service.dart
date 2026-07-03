@@ -31,21 +31,24 @@ class WeightLogService {
   }
 
   /// Most recent entries, oldest first — ready to feed directly into a
-  /// line chart.
+  /// line chart. Sorts client-side (by document ID / date) instead of
+  /// using Firestore's orderBy, so no composite index is required.
   Future<List<WeightLog>> getHistory({int limit = 30}) async {
     final collection = _collection;
     if (collection == null) return [];
-    final snapshot = await collection
-        .orderBy(FieldPath.documentId, descending: true)
-        .limit(limit)
-        .get();
+    final snapshot = await collection.get();
     final logs = snapshot.docs.map((d) {
       final parts = d.id.split('-');
       final date = DateTime(
           int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
       return WeightLog.fromMap(date, d.data());
     }).toList();
-    return logs.reversed.toList();
+
+    logs.sort((a, b) => a.date.compareTo(b.date)); // oldest first
+    if (logs.length > limit) {
+      return logs.sublist(logs.length - limit);
+    }
+    return logs;
   }
 
   Future<WeightLog?> getLatest() async {

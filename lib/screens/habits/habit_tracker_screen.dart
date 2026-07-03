@@ -104,7 +104,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
                 'Small daily habits, big results.',
                 style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary.withOpacity(0.9)),
+                    color: AppColors.textSecondary.withValues(alpha: 0.9)),
               ),
               const SizedBox(height: 20),
 
@@ -246,7 +246,7 @@ class _WeekStrip extends StatelessWidget {
                 height: 28,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: color.withOpacity(progress > 0 ? 1 : 0.15),
+                  color: color.withValues(alpha: progress > 0 ? 1 : 0.15),
                   border: isToday
                       ? Border.all(color: AppColors.accent, width: 1.5)
                       : null,

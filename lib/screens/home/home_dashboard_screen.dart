@@ -75,8 +75,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   ({String label, Color color}) _bmiCategory(double bmi) {
-    if (bmi < 18.5)
+    if (bmi < 18.5) {
       return (label: 'Underweight', color: const Color(0xFF3B82F6));
+    }
     if (bmi < 25) return (label: 'Healthy', color: AppColors.accent);
     if (bmi < 30) return (label: 'Overweight', color: const Color(0xFFF59E0B));
     return (label: 'Obese', color: AppColors.error);
@@ -123,7 +124,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   "Let's crush today's goals.",
                   style: TextStyle(
                       fontSize: 13.5,
-                      color: AppColors.textSecondary.withOpacity(0.9)),
+                      color: AppColors.textSecondary.withValues(alpha: 0.9)),
                 ),
                 const SizedBox(height: 22),
 
@@ -138,7 +139,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary.withOpacity(0.85),
+                    color: AppColors.textPrimary.withValues(alpha: 0.85),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -189,7 +190,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary.withOpacity(0.85),
+                        color: AppColors.textPrimary.withValues(alpha: 0.85),
                       ),
                     ),
                     GestureDetector(
@@ -303,7 +304,7 @@ class _QuickStartCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                      color: Colors.white.withOpacity(0.12), width: 18),
+                      color: Colors.white.withValues(alpha: 0.12), width: 18),
                 ),
               ),
             ),
@@ -315,7 +316,7 @@ class _QuickStartCard extends StatelessWidget {
                 height: 90,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.08),
+                  color: Colors.white.withValues(alpha: 0.08),
                 ),
               ),
             ),
@@ -329,7 +330,7 @@ class _QuickStartCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.18),
+                          color: Colors.white.withValues(alpha: 0.18),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -356,7 +357,7 @@ class _QuickStartCard extends StatelessWidget {
                       Text(
                         'Your next session is waiting',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.85),
+                          color: Colors.white.withValues(alpha: 0.85),
                           fontSize: 12.5,
                         ),
                       ),

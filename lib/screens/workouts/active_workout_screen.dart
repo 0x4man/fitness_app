@@ -110,7 +110,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                     'No exercises added yet.\nGo back and add some from the library.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: AppColors.textSecondary.withOpacity(0.8)),
+                        color: AppColors.textSecondary.withValues(alpha: 0.8)),
                   ),
                 )
               : ListView.separated(
@@ -212,8 +212,8 @@ class _ExerciseTrackerCard extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           // Column header row
-          Row(
-            children: const [
+          const Row(
+            children: [
               SizedBox(width: 36, child: Text('Set', style: _headerStyle)),
               Expanded(child: Center(child: Text('Reps', style: _headerStyle))),
               Expanded(

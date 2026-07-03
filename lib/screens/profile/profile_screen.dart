@@ -107,7 +107,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.3),
+                      color: AppColors.primary.withValues(alpha: 0.3),
                       blurRadius: 18,
                       offset: const Offset(0, 8),
                     ),
@@ -119,7 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: 62,
                       height: 62,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 2),
                       ),
@@ -143,7 +143,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Text(
                             user?.email ?? '',
                             style: TextStyle(
-                                color: Colors.white.withOpacity(0.85),
+                                color: Colors.white.withValues(alpha: 0.85),
                                 fontSize: 12.5),
                           ),
                           if (_profile != null) ...[
@@ -152,7 +152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.18),
+                                color: Colors.white.withValues(alpha: 0.18),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
@@ -202,7 +202,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary.withOpacity(0.9),
+                  color: AppColors.textSecondary.withValues(alpha: 0.9),
                 ),
               ),
               const SizedBox(height: 10),
@@ -245,7 +245,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary.withOpacity(0.9),
+                  color: AppColors.textSecondary.withValues(alpha: 0.9),
                 ),
               ),
               const SizedBox(height: 10),
@@ -385,7 +385,7 @@ class _OptionTile extends StatelessWidget {
               height: 34,
               decoration: BoxDecoration(
                 color: (isDestructive ? AppColors.error : AppColors.primary)
-                    .withOpacity(0.1),
+                    .withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon,

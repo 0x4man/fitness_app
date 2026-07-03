@@ -31,6 +31,7 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
   int _thisWeekWorkouts = 0;
   int _lastWeekWorkouts = 0;
   bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -39,22 +40,37 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
   }
 
   Future<void> _loadData() async {
-    final results = await Future.wait([
-      _profileService.getProfile(),
-      _weightLogService.getHistory(limit: 14),
-      _workoutLogService.getDailySetsLastNDays(7),
-      _workoutLogService.getWeekOverWeekWorkouts(),
-    ]);
-    if (mounted) {
-      setState(() {
-        _profile = results[0] as UserProfile?;
-        _weightHistory = results[1] as List<WeightLog>;
-        _dailySets = results[2] as List<MapEntry<DateTime, int>>;
-        final weekPair = results[3] as (int, int);
-        _thisWeekWorkouts = weekPair.$1;
-        _lastWeekWorkouts = weekPair.$2;
-        _isLoading = false;
-      });
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      final results = await Future.wait([
+        _profileService.getProfile(),
+        _weightLogService.getHistory(limit: 14),
+        _workoutLogService.getDailySetsLastNDays(7),
+        _workoutLogService.getWeekOverWeekWorkouts(),
+      ]);
+      if (mounted) {
+        setState(() {
+          _profile = results[0] as UserProfile?;
+          _weightHistory = results[1] as List<WeightLog>;
+          _dailySets = results[2] as List<MapEntry<DateTime, int>>;
+          final weekPair = results[3] as (int, int);
+          _thisWeekWorkouts = weekPair.$1;
+          _lastWeekWorkouts = weekPair.$2;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('ProgressDashboard load error: $e');
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Could not load progress data.\n($e)';
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -86,12 +102,20 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
     final result = await showDialog<double>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Log Today\'s Weight'),
+        title: const Text('Log Today\'s Weight',
+            style: TextStyle(color: AppColors.textPrimary)),
         content: TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           autofocus: true,
-          decoration: const InputDecoration(suffixText: 'kg'),
+          style: const TextStyle(color: AppColors.textPrimary, fontSize: 16),
+          cursorColor: AppColors.primary,
+          decoration: const InputDecoration(
+            suffixText: 'kg',
+            suffixStyle: TextStyle(color: AppColors.textSecondary),
+            filled: true,
+            fillColor: AppColors.surface,
+          ),
         ),
         actions: [
           TextButton(
@@ -125,6 +149,34 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_rounded,
+                    color: AppColors.error, size: 40),
+                const SizedBox(height: 12),
+                Text(
+                  _errorMessage!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      color: AppColors.textSecondary, fontSize: 12.5),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                    onPressed: _loadData, child: const Text('Retry')),
+              ],
+            ),
+          ),
+        ),
+      );
     }
 
     final bmi = _currentBmi;

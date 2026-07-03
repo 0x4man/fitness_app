@@ -70,7 +70,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                   child: Text(
                     'No workouts logged yet.',
                     style: TextStyle(
-                        color: AppColors.textSecondary.withOpacity(0.8)),
+                        color: AppColors.textSecondary.withValues(alpha: 0.8)),
                   ),
                 )
               : RefreshIndicator(
@@ -100,7 +100,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                               width: 46,
                               height: 46,
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withOpacity(0.1),
+                                color: AppColors.primary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(13),
                               ),
                               child: const Icon(Icons.fitness_center_rounded,

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../models/exercise.dart';
 import '../../providers/workout_session_provider.dart';
 import '../../services/exercise_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app_header.dart';
+import '../../widgets/exercise_animation.dart';
 import 'active_workout_screen.dart';
 import 'workout_history_screen.dart';
 
@@ -470,6 +472,13 @@ class _ExerciseDetailSheet extends StatelessWidget {
     required this.icon,
   });
 
+  Future<void> _openVideoDemo(String exerciseName) async {
+    final query = Uri.encodeComponent('$exerciseName proper form tutorial');
+    final url =
+        Uri.parse('https://www.youtube.com/results?search_query=$query');
+    await launchUrl(url, mode: LaunchMode.externalApplication);
+  }
+
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -494,6 +503,46 @@ class _ExerciseDetailSheet extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.surfaceBorder,
                     borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Center(
+                child: ExerciseAnimation(
+                  icon: icon,
+                  color: color,
+                  pattern:
+                      motionPatternFor(exercise.name, exercise.muscleGroup),
+                  size: 170,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Center(
+                child: GestureDetector(
+                  onTap: () => _openVideoDemo(exercise.name),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.surfaceBorder),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.play_circle_fill_rounded,
+                            size: 18, color: color),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Watch Video Demo',
+                          style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              color: color),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
