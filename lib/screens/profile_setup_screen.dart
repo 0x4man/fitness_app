@@ -19,9 +19,14 @@ const List<Map<String, dynamic>> _goals = [
 
 /// Shown once, right after signup (or on login if the profile was
 /// never completed). Collects fitness details and writes them to
-/// Firestore via ProfileService, then routes to the Main Navigation Screen.
+/// Firestore via ProfileService, then routes to the Home Dashboard.
+/// Also reused for "Edit Profile" from the Profile tab — in that case
+/// existing values are pre-filled and Save just pops back instead of
+/// navigating to the Home Dashboard.
 class ProfileSetupScreen extends StatefulWidget {
-  const ProfileSetupScreen({super.key});
+  final bool isEditing;
+
+  const ProfileSetupScreen({super.key, this.isEditing = false});
 
   @override
   State<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
@@ -37,6 +42,26 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   String? _selectedGender;
   String? _selectedGoal;
   bool _isLoading = false;
+  bool _isFetchingExisting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isEditing) _loadExistingProfile();
+  }
+
+  Future<void> _loadExistingProfile() async {
+    setState(() => _isFetchingExisting = true);
+    final profile = await _profileService.getProfile();
+    if (profile != null && mounted) {
+      _ageController.text = profile.age.toString();
+      _heightController.text = profile.heightCm.toStringAsFixed(0);
+      _weightController.text = profile.weightKg.toStringAsFixed(0);
+      _selectedGender = profile.gender;
+      _selectedGoal = profile.fitnessGoal;
+    }
+    if (mounted) setState(() => _isFetchingExisting = false);
+  }
 
   Future<void> _handleSave() async {
     if (!_formKey.currentState!.validate()) return;
@@ -62,9 +87,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       await _profileService.saveProfile(profile);
 
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-      );
+      if (widget.isEditing) {
+        showAppMessage(context, 'Profile updated.', isError: false);
+        Navigator.of(context).pop();
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+        );
+      }
     } catch (e) {
       if (mounted) {
         showAppMessage(context, 'Could not save profile. Please try again.');
@@ -76,6 +106,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isFetchingExisting) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -85,9 +119,15 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Tell Us About You',
-                  style: TextStyle(
+                if (widget.isEditing)
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                  ),
+                const SizedBox(height: 4),
+                Text(
+                  widget.isEditing ? 'Edit Profile' : 'Tell Us About You',
+                  style: const TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
@@ -198,7 +238,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 const SizedBox(height: 36),
 
                 CustomButton(
-                  text: 'Save & Continue',
+                  text: widget.isEditing ? 'Save Changes' : 'Save & Continue',
                   isLoading: _isLoading,
                   onPressed: _handleSave,
                 ),

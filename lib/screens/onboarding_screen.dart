@@ -76,7 +76,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Align(
               alignment: Alignment.topRight,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 child: TextButton(
                   onPressed: _goToLogin,
                   child: const Text(
@@ -102,10 +103,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           width: 160,
                           height: 160,
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
+                            color: AppColors.primary.withOpacity(0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(page.icon, size: 72, color: AppColors.primary),
+                          child: Icon(page.icon,
+                              size: 72, color: AppColors.primary),
                         ),
                         const SizedBox(height: 40),
                         Text(
@@ -138,7 +140,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               count: _pages.length,
               effect: const WormEffect(
                 activeDotColor: AppColors.primary,
-                dotColor: Color(0xFFE0E4F5),
+                dotColor: AppColors.surfaceBorder,
                 dotHeight: 8,
                 dotWidth: 8,
               ),

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/exercise.dart';
+import '../../providers/workout_session_provider.dart';
 import '../../services/exercise_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app_header.dart';
+import 'active_workout_screen.dart';
+import 'workout_history_screen.dart';
 
 const List<String> _filters = [
   'All',
@@ -30,6 +34,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
   final _exerciseService = ExerciseService();
   List<Exercise> _allExercises = [];
   bool _isLoading = true;
+  String? _errorMessage;
   String _selectedFilter = 'All';
 
   @override
@@ -39,13 +44,27 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
   }
 
   Future<void> _loadExercises() async {
-    setState(() => _isLoading = true);
-    final exercises = await _exerciseService.getExercises();
-    if (mounted) {
-      setState(() {
-        _allExercises = exercises;
-        _isLoading = false;
-      });
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      final exercises = await _exerciseService.getExercises();
+      if (mounted) {
+        setState(() {
+          _allExercises = exercises;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('ExerciseService error: $e');
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Could not load exercises. Pull down to retry.\n($e)';
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -124,10 +143,38 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  Text(
-                    '${_filteredExercises.length} exercises',
-                    style: const TextStyle(
-                        fontSize: 12.5, color: AppColors.textSecondary),
+                  Row(
+                    children: [
+                      Text(
+                        '${_filteredExercises.length} exercises',
+                        style: const TextStyle(
+                            fontSize: 12.5, color: AppColors.textSecondary),
+                      ),
+                      const SizedBox(width: 10),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => const WorkoutHistoryScreen()),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            shape: BoxShape.circle,
+                            boxShadow: const [
+                              BoxShadow(
+                                  color: AppColors.cardShadow,
+                                  blurRadius: 8,
+                                  offset: Offset(0, 3)),
+                            ],
+                          ),
+                          child: const Icon(Icons.history_rounded,
+                              size: 18, color: AppColors.textPrimary),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -150,12 +197,13 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.primary : Colors.white,
+                        color:
+                            isSelected ? AppColors.primary : AppColors.surface,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: isSelected
                               ? AppColors.primary
-                              : const Color(0xFFE5E7EB),
+                              : AppColors.surfaceBorder,
                         ),
                       ),
                       child: Text(
@@ -177,36 +225,130 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : _filteredExercises.isEmpty
+                  : _errorMessage != null
                       ? Center(
-                          child: Text(
-                            'No exercises found.',
-                            style: TextStyle(
-                                color:
-                                    AppColors.textSecondary.withOpacity(0.8)),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.error_outline_rounded,
+                                    color: AppColors.error, size: 40),
+                                const SizedBox(height: 12),
+                                Text(
+                                  _errorMessage!,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      color: AppColors.textSecondary,
+                                      fontSize: 12.5),
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  onPressed: _loadExercises,
+                                  child: const Text('Retry'),
+                                ),
+                              ],
+                            ),
                           ),
                         )
-                      : RefreshIndicator(
-                          onRefresh: _loadExercises,
-                          child: ListView.separated(
-                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                            itemCount: _filteredExercises.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 12),
-                            itemBuilder: (context, index) {
-                              final exercise = _filteredExercises[index];
-                              return _ExerciseCard(
-                                exercise: exercise,
-                                color: _difficultyColor(exercise.difficulty),
-                                icon: _muscleGroupIcon(exercise.muscleGroup),
-                                onTap: () => _openExerciseDetail(exercise),
-                              );
-                            },
-                          ),
-                        ),
+                      : _filteredExercises.isEmpty
+                          ? Center(
+                              child: Text(
+                                'No exercises found.',
+                                style: TextStyle(
+                                    color: AppColors.textSecondary
+                                        .withOpacity(0.8)),
+                              ),
+                            )
+                          : RefreshIndicator(
+                              onRefresh: _loadExercises,
+                              child: ListView.separated(
+                                padding:
+                                    const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                                itemCount: _filteredExercises.length,
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(height: 12),
+                                itemBuilder: (context, index) {
+                                  final exercise = _filteredExercises[index];
+                                  return _ExerciseCard(
+                                    exercise: exercise,
+                                    color:
+                                        _difficultyColor(exercise.difficulty),
+                                    icon:
+                                        _muscleGroupIcon(exercise.muscleGroup),
+                                    onTap: () => _openExerciseDetail(exercise),
+                                  );
+                                },
+                              ),
+                            ),
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: Consumer<WorkoutSessionProvider>(
+        builder: (context, session, _) {
+          if (session.isEmpty) return const SizedBox.shrink();
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 14),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (_) => const ActiveWorkoutScreen()),
+                  );
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: AppColors.heroGradient,
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withOpacity(0.35),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.fitness_center_rounded,
+                          color: Colors.white, size: 20),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          '${session.exerciseCount} exercise${session.exerciseCount == 1 ? '' : 's'} added',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const Text(
+                        'Start Workout',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.arrow_forward_rounded,
+                          color: Colors.white, size: 18),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -232,9 +374,9 @@ class _ExerciseCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFF0F1F7)),
+          border: Border.all(color: AppColors.surfaceBorder),
           boxShadow: const [
             BoxShadow(
                 color: AppColors.cardShadow,
@@ -338,7 +480,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
       builder: (context, scrollController) {
         return Container(
           decoration: const BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surfaceElevated,
             borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
           child: ListView(
@@ -350,7 +492,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                   width: 42,
                   height: 5,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE5E7EB),
+                    color: AppColors.surfaceBorder,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -468,7 +610,27 @@ class _ExerciseDetailSheet extends StatelessWidget {
               }),
               const SizedBox(height: 8),
               ElevatedButton.icon(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  final session = Provider.of<WorkoutSessionProvider>(context,
+                      listen: false);
+                  final alreadyAdded = session.containsExercise(exercise.id);
+                  if (!alreadyAdded) session.addExercise(exercise);
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(alreadyAdded
+                          ? '${exercise.name} is already in today\'s workout'
+                          : '${exercise.name} added to today\'s workout'),
+                      backgroundColor: alreadyAdded
+                          ? AppColors.textSecondary
+                          : AppColors.primary,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      margin: const EdgeInsets.all(16),
+                    ),
+                  );
+                },
                 icon: const Icon(Icons.add_task_rounded),
                 label: const Text('Add to Today\'s Workout'),
               ),

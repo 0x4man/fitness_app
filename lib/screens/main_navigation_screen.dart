@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import 'coming_soon_screen.dart';
 import 'home/home_dashboard_screen.dart';
+import 'profile/profile_screen.dart';
 import 'workouts/workout_library_screen.dart';
 
 /// The main app shell after login/profile-setup. Hosts the bottom
-/// navigation bar with 5 tabs. Only Home is fully built right now —
-/// Workouts, Habits, and Progress show a "Coming Soon" placeholder
-/// until we build them in later steps. Profile lets the user log out.
+/// navigation bar with 5 tabs. Home, Workouts, and Profile are fully
+/// built — Habits and Progress show a "Coming Soon" placeholder until
+/// we build them in later steps.
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
 
@@ -29,7 +29,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       const WorkoutLibraryScreen(),
       const ComingSoonScreen(title: 'Habits', icon: Icons.checklist_rounded),
       const ComingSoonScreen(title: 'Progress', icon: Icons.insights_rounded),
-      const _ProfileTab(),
+      const ProfileScreen(),
     ];
   }
 
@@ -51,7 +51,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           selectedIndex: _currentIndex,
           onDestinationSelected: (index) =>
               setState(() => _currentIndex = index),
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.surface,
           indicatorColor: AppColors.primary.withOpacity(0.12),
           elevation: 0,
           height: 66,
@@ -84,52 +84,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               selectedIcon:
                   Icon(Icons.person_rounded, color: AppColors.primary),
               label: 'Profile',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Minimal Profile tab for now — just shows the user's email and a
-/// logout button. Will be expanded into a full Profile/Settings page.
-class _ProfileTab extends StatelessWidget {
-  const _ProfileTab();
-
-  @override
-  Widget build(BuildContext context) {
-    final user = AuthService().currentUser;
-    return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircleAvatar(
-              radius: 40,
-              backgroundColor: AppColors.primary,
-              child: Icon(Icons.person, color: Colors.white, size: 40),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              user?.displayName ?? 'Athlete',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              user?.email ?? '',
-              style: const TextStyle(color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 24),
-            OutlinedButton.icon(
-              onPressed: () => AuthService().signOut(),
-              icon: const Icon(Icons.logout, color: AppColors.error),
-              label: const Text('Log Out',
-                  style: TextStyle(color: AppColors.error)),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.error),
-              ),
             ),
           ],
         ),

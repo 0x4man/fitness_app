@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/user_profile.dart';
 import '../../services/auth_service.dart';
 import '../../services/profile_service.dart';
+import '../../services/workout_log_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app_header.dart';
 import '../../widgets/dashboard_stat_card.dart';
@@ -23,20 +24,29 @@ class HomeDashboardScreen extends StatefulWidget {
 
 class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   final _profileService = ProfileService();
+  final _workoutLogService = WorkoutLogService();
   UserProfile? _profile;
+  int _streak = 0;
+  int _workoutsThisWeek = 0;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadProfile();
+    _loadData();
   }
 
-  Future<void> _loadProfile() async {
-    final profile = await _profileService.getProfile();
+  Future<void> _loadData() async {
+    final results = await Future.wait([
+      _profileService.getProfile(),
+      _workoutLogService.getCurrentStreak(),
+      _workoutLogService.getWorkoutsThisWeek(),
+    ]);
     if (mounted) {
       setState(() {
-        _profile = profile;
+        _profile = results[0] as UserProfile?;
+        _streak = results[1] as int;
+        _workoutsThisWeek = results[2] as int;
         _isLoading = false;
       });
     }
@@ -79,7 +89,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
-          onRefresh: _loadProfile,
+          onRefresh: _loadData,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
@@ -138,16 +148,16 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       value: bmi != null ? bmi.toStringAsFixed(1) : '--',
                       color: bmiInfo?.color ?? AppColors.primary,
                     ),
-                    const DashboardStatCard(
+                    DashboardStatCard(
                       icon: Icons.local_fire_department_outlined,
                       label: 'Day Streak',
-                      value: '0',
-                      color: Color(0xFFF59E0B),
+                      value: '$_streak',
+                      color: const Color(0xFFF59E0B),
                     ),
-                    const DashboardStatCard(
+                    DashboardStatCard(
                       icon: Icons.check_circle_outline,
                       label: 'Workouts This Week',
-                      value: '0',
+                      value: '$_workoutsThisWeek',
                       color: AppColors.accent,
                     ),
                     DashboardStatCard(
@@ -188,10 +198,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(20),
                     border:
-                        Border.all(color: const Color(0xFFF0F1F7), width: 1),
+                        Border.all(color: AppColors.surfaceBorder, width: 1),
                     boxShadow: const [
                       BoxShadow(
                         color: AppColors.cardShadow,
