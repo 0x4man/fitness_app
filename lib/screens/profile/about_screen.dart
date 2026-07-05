@@ -29,7 +29,7 @@ class AboutScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                          color: AppColors.primary.withOpacity(0.4),
+                          color: AppColors.primary.withValues(alpha: 0.4),
                           blurRadius: 24,
                           offset: const Offset(0, 10)),
                     ],
@@ -56,7 +56,7 @@ class AboutScreen extends StatelessWidget {
                   'Version 1.0.0',
                   style: TextStyle(
                       fontSize: 12.5,
-                      color: AppColors.textSecondary.withOpacity(0.85)),
+                      color: AppColors.textSecondary.withValues(alpha: 0.85)),
                 ),
               ],
             ),
@@ -80,9 +80,9 @@ class AboutScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          _InfoRow(label: 'Built with', value: 'Flutter & Firebase'),
-          _InfoRow(label: 'AI Coach powered by', value: 'Google Gemini'),
-          _InfoRow(label: 'Made for', value: 'People who show up 💪'),
+          const _InfoRow(label: 'Built with', value: 'Flutter & Firebase'),
+          const _InfoRow(label: 'AI Coach powered by', value: 'Google Gemini'),
+          const _InfoRow(label: 'Made for', value: 'People who show up 💪'),
         ],
       ),
     );

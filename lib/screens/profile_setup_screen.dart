@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user_profile.dart';
 import '../services/profile_service.dart';
 import '../theme/app_theme.dart';
@@ -34,6 +35,7 @@ class ProfileSetupScreen extends StatefulWidget {
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _ageController = TextEditingController();
   final _heightController = TextEditingController();
   final _weightController = TextEditingController();
@@ -47,6 +49,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   @override
   void initState() {
     super.initState();
+    // Prefill from the Auth display name right away — for editing,
+    // _loadExistingProfile() below will refresh it from Firestore too
+    // (source of truth) once that finishes loading.
+    _nameController.text = FirebaseAuth.instance.currentUser?.displayName ?? '';
     if (widget.isEditing) _loadExistingProfile();
   }
 
@@ -54,6 +60,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     setState(() => _isFetchingExisting = true);
     final profile = await _profileService.getProfile();
     if (profile != null && mounted) {
+      if (profile.name.isNotEmpty) _nameController.text = profile.name;
       _ageController.text = profile.age.toString();
       _heightController.text = profile.heightCm.toStringAsFixed(0);
       _weightController.text = profile.weightKg.toStringAsFixed(0);
@@ -78,6 +85,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     setState(() => _isLoading = true);
     try {
       final profile = UserProfile(
+        name: _nameController.text.trim(),
         age: int.parse(_ageController.text.trim()),
         heightCm: double.parse(_heightController.text.trim()),
         weightKg: double.parse(_weightController.text.trim()),
@@ -140,6 +148,17 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       TextStyle(fontSize: 15, color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 28),
+
+                CustomTextField(
+                  label: 'Name',
+                  hint: 'Your name',
+                  controller: _nameController,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Required';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
 
                 // Age / Height / Weight
                 Row(
@@ -253,6 +272,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   @override
   void dispose() {
+    _nameController.dispose();
     _ageController.dispose();
     _heightController.dispose();
     _weightController.dispose();

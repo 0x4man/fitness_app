@@ -60,21 +60,35 @@ class NotificationService {
     _initialized = true;
   }
 
+  bool _permissionRequestInProgress = false;
+
   /// Requests notification permission — required on Android 13+ and iOS.
   /// Call this from a user-initiated action (e.g. a settings toggle),
-  /// not silently on app start.
+  /// not silently on app start. Guards against overlapping calls,
+  /// since Android throws if a permission request is triggered while
+  /// one is already in flight (e.g. rapid double-taps).
   Future<bool> requestPermission() async {
-    final androidGranted = await _plugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
+    if (_permissionRequestInProgress) return false;
+    _permissionRequestInProgress = true;
+    try {
+      final androidGranted = await _plugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
 
-    final iosGranted = await _plugin
-        .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(alert: true, badge: true, sound: true);
+      final iosGranted = await _plugin
+          .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(alert: true, badge: true, sound: true);
 
-    return (androidGranted ?? true) || (iosGranted ?? true);
+      return (androidGranted ?? true) || (iosGranted ?? true);
+    } catch (_) {
+      // Another request was already in progress, or the platform
+      // rejected it — treat as "not granted" rather than crashing.
+      return false;
+    } finally {
+      _permissionRequestInProgress = false;
+    }
   }
 
   NotificationDetails get _details => const NotificationDetails(

@@ -96,7 +96,7 @@ class HelpSupportScreen extends StatelessWidget {
                 Text(
                   'Send us an email and we\'ll get back to you.',
                   style: TextStyle(
-                      color: Colors.white.withOpacity(0.9), fontSize: 12.5),
+                      color: Colors.white.withValues(alpha: 0.9), fontSize: 12.5),
                 ),
                 const SizedBox(height: 16),
                 SizedBox(

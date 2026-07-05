@@ -14,6 +14,5 @@
 /// If you plan to push this project to GitHub, add this file to
 /// .gitignore so your key isn't committed publicly.
 class ApiKeys {
-  static const String geminiApiKey =
-      'Your_Google_Gemini_API_Key_Here';
+  static const String geminiApiKey = 'YOUR_GEMINI_API_KEY_HERE';
 }

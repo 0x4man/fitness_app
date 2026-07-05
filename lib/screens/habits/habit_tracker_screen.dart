@@ -176,6 +176,9 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
                 child: Row(
                   children: [
                     _QuickButton(
+                        label: '-10g', onTap: () => _updateProtein(-10)),
+                    const SizedBox(width: 8),
+                    _QuickButton(
                         label: '+10g', onTap: () => _updateProtein(10)),
                     const SizedBox(width: 8),
                     _QuickButton(
@@ -232,7 +235,7 @@ class _WeekStrip extends StatelessWidget {
           return Column(
             children: [
               Text(
-                _dayLabels[i],
+                _dayLabels[DateTime.parse(log.date).weekday - 1],
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,

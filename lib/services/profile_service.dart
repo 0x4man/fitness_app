@@ -27,6 +27,10 @@ class ProfileService {
           profile.toMap(),
           SetOptions(merge: true),
         );
+    // Keep Firebase Auth's displayName in sync so anywhere reading
+    // currentUser.displayName (e.g. the Profile hero card) stays
+    // consistent with the name saved here.
+    await _auth.currentUser?.updateDisplayName(profile.name);
   }
 
   Future<UserProfile?> getProfile() async {
