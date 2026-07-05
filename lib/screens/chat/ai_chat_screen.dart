@@ -281,7 +281,7 @@ class _ChatInputBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.background,
         border: Border(top: BorderSide(color: AppColors.surfaceBorder)),
       ),
@@ -307,8 +307,8 @@ class _ChatInputBar extends StatelessWidget {
             child: Container(
               width: 46,
               height: 46,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
                   colors: AppColors.heroGradient,
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,

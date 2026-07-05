@@ -10,6 +10,7 @@ import 'screens/auth/login_screen.dart';
 import 'screens/main_navigation_screen.dart';
 import 'screens/profile_setup_screen.dart';
 import 'services/auth_service.dart';
+import 'services/notification_service.dart';
 import 'services/profile_service.dart';
 import 'providers/workout_session_provider.dart';
 
@@ -20,6 +21,7 @@ import 'firebase_options.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await NotificationService().init();
   runApp(const FitnessApp());
 }
 

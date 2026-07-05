@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/user_profile.dart';
 import '../../services/auth_service.dart';
+import '../../services/notification_service.dart';
 import '../../services/profile_service.dart';
 import '../../theme/app_theme.dart';
 import '../profile_setup_screen.dart';
 import '../workouts/workout_history_screen.dart';
+import 'about_screen.dart';
+import 'help_support_screen.dart';
 
 /// The Profile tab — user info card with quick stats, a settings-style
 /// list of actions, and a clearly destructive Log Out entry at the
@@ -20,11 +24,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _profileService = ProfileService();
   UserProfile? _profile;
   bool _isLoading = true;
+  bool _remindersEnabled = false;
+
+  static const _remindersPrefKey = 'daily_reminders_enabled';
 
   @override
   void initState() {
     super.initState();
     _load();
+    _loadReminderPref();
+  }
+
+  Future<void> _loadReminderPref() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(
+          () => _remindersEnabled = prefs.getBool(_remindersPrefKey) ?? false);
+    }
+  }
+
+  Future<void> _toggleReminders(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (value) {
+      final granted = await NotificationService().requestPermission();
+      if (!granted) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Notification permission denied.')),
+          );
+        }
+        return;
+      }
+      await NotificationService().scheduleDailyReminders();
+    } else {
+      await NotificationService().cancelAll();
+    }
+
+    await prefs.setBool(_remindersPrefKey, value);
+    if (mounted) setState(() => _remindersEnabled = value);
   }
 
   Future<void> _load() async {
@@ -107,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
+                      color: AppColors.primary.withOpacity(0.3),
                       blurRadius: 18,
                       offset: const Offset(0, 8),
                     ),
@@ -119,7 +157,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: 62,
                       height: 62,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: Colors.white.withOpacity(0.2),
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 2),
                       ),
@@ -143,7 +181,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Text(
                             user?.email ?? '',
                             style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.85),
+                                color: Colors.white.withOpacity(0.85),
                                 fontSize: 12.5),
                           ),
                           if (_profile != null) ...[
@@ -152,7 +190,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.18),
+                                color: Colors.white.withOpacity(0.18),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
@@ -202,7 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary.withValues(alpha: 0.9),
+                  color: AppColors.textSecondary.withOpacity(0.9),
                 ),
               ),
               const SizedBox(height: 10),
@@ -231,11 +269,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       );
                     },
                   ),
-                  _OptionTile(
+                  _SwitchOptionTile(
                     icon: Icons.notifications_none_rounded,
-                    label: 'Notifications',
-                    onTap: () {},
-                    trailing: 'Coming Soon',
+                    label: 'Daily Reminders',
+                    value: _remindersEnabled,
+                    onChanged: _toggleReminders,
+                  ),
+                  _OptionTile(
+                    icon: Icons.send_rounded,
+                    label: 'Send Test Notification',
+                    onTap: () async {
+                      await NotificationService().showTestNotification();
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content:
+                                  Text('Check your notification shade! 👀')),
+                        );
+                      }
+                    },
                   ),
                 ],
               ),
@@ -245,20 +297,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary.withValues(alpha: 0.9),
+                  color: AppColors.textSecondary.withOpacity(0.9),
                 ),
               ),
               const SizedBox(height: 10),
               _OptionsCard(
                 children: [
                   _OptionTile(
-                      icon: Icons.help_outline_rounded,
-                      label: 'Help & Support',
-                      onTap: () {}),
+                    icon: Icons.help_outline_rounded,
+                    label: 'Help & Support',
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const HelpSupportScreen()),
+                      );
+                    },
+                  ),
                   _OptionTile(
-                      icon: Icons.info_outline_rounded,
-                      label: 'About FitTrack',
-                      onTap: () {}),
+                    icon: Icons.info_outline_rounded,
+                    label: 'About FitTrack',
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const AboutScreen()),
+                      );
+                    },
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
@@ -385,7 +448,7 @@ class _OptionTile extends StatelessWidget {
               height: 34,
               decoration: BoxDecoration(
                 color: (isDestructive ? AppColors.error : AppColors.primary)
-                    .withValues(alpha: 0.1),
+                    .withOpacity(0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon,
@@ -411,6 +474,55 @@ class _OptionTile extends StatelessWidget {
                   color: AppColors.textSecondary, size: 20),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SwitchOptionTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _SwitchOptionTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 18, color: AppColors.primary),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary),
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: AppColors.primary,
+          ),
+        ],
       ),
     );
   }

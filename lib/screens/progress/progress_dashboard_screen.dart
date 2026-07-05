@@ -88,8 +88,9 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
   }
 
   ({String label, Color color}) _bmiCategory(double bmi) {
-    if (bmi < 18.5)
+    if (bmi < 18.5) {
       return (label: 'Underweight', color: const Color(0xFF3B82F6));
+    }
     if (bmi < 25) return (label: 'Healthy', color: AppColors.accent);
     if (bmi < 30) return (label: 'Overweight', color: const Color(0xFFF59E0B));
     return (label: 'Obese', color: AppColors.error);
@@ -206,7 +207,7 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
                 'Track how far you\'ve come.',
                 style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary.withOpacity(0.9)),
+                    color: AppColors.textSecondary.withValues(alpha: 0.9)),
               ),
               const SizedBox(height: 20),
 
@@ -262,7 +263,7 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.12),
+                        color: AppColors.primary.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Row(
@@ -301,7 +302,7 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
                 'Total sets logged per day, last 7 days',
                 style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary.withOpacity(0.85)),
+                    color: AppColors.textSecondary.withValues(alpha: 0.85)),
               ),
               const SizedBox(height: 12),
               _ConsistencyChartCard(dailySets: _dailySets),
@@ -334,7 +335,7 @@ class _BmiCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-              color: AppColors.primary.withOpacity(0.3),
+              color: AppColors.primary.withValues(alpha: 0.3),
               blurRadius: 18,
               offset: const Offset(0, 8)),
         ],
@@ -348,7 +349,7 @@ class _BmiCard extends StatelessWidget {
                 Text(
                   'BODY MASS INDEX',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.85),
+                    color: Colors.white.withValues(alpha: 0.85),
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.8,
@@ -369,7 +370,7 @@ class _BmiCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -414,7 +415,7 @@ class _BmiRing extends StatelessWidget {
             child: CircularProgressIndicator(
               value: 1,
               strokeWidth: 8,
-              valueColor: AlwaysStoppedAnimation(Colors.white.withOpacity(0.2)),
+              valueColor: AlwaysStoppedAnimation(Colors.white.withValues(alpha: 0.2)),
             ),
           ),
           SizedBox(
@@ -517,7 +518,7 @@ class _WeightTrendCard extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 12.5,
-                    color: AppColors.textSecondary.withOpacity(0.85)),
+                    color: AppColors.textSecondary.withValues(alpha: 0.85)),
               ),
             )
           : LineChart(
@@ -527,7 +528,7 @@ class _WeightTrendCard extends StatelessWidget {
                   drawVerticalLine: false,
                   horizontalInterval: _yInterval,
                   getDrawingHorizontalLine: (value) =>
-                      FlLine(color: AppColors.surfaceBorder, strokeWidth: 1),
+                      const FlLine(color: AppColors.surfaceBorder, strokeWidth: 1),
                 ),
                 borderData: FlBorderData(show: false),
                 titlesData: FlTitlesData(
@@ -556,8 +557,9 @@ class _WeightTrendCard extends StatelessWidget {
                           .clamp(1, double.infinity),
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
-                        if (index < 0 || index >= history.length)
+                        if (index < 0 || index >= history.length) {
                           return const SizedBox.shrink();
+                        }
                         final date = history[index].date;
                         return Padding(
                           padding: const EdgeInsets.only(top: 6),
@@ -597,8 +599,8 @@ class _WeightTrendCard extends StatelessWidget {
                       show: true,
                       gradient: LinearGradient(
                         colors: [
-                          AppColors.primary.withOpacity(0.25),
-                          AppColors.primary.withOpacity(0.0)
+                          AppColors.primary.withValues(alpha: 0.25),
+                          AppColors.primary.withValues(alpha: 0.0)
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -664,8 +666,9 @@ class _ConsistencyChartCard extends StatelessWidget {
                 reservedSize: 26,
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
-                  if (index < 0 || index >= dailySets.length)
+                  if (index < 0 || index >= dailySets.length) {
                     return const SizedBox.shrink();
+                  }
                   final isToday = index == dailySets.length - 1;
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),

@@ -162,10 +162,10 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                         },
                         child: Container(
                           padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: AppColors.surface,
                             shape: BoxShape.circle,
-                            boxShadow: const [
+                            boxShadow: [
                               BoxShadow(
                                   color: AppColors.cardShadow,
                                   blurRadius: 8,
@@ -259,7 +259,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                                 'No exercises found.',
                                 style: TextStyle(
                                     color: AppColors.textSecondary
-                                        .withOpacity(0.8)),
+                                        .withValues(alpha: 0.8)),
                               ),
                             )
                           : RefreshIndicator(
@@ -312,7 +312,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withOpacity(0.35),
+                        color: AppColors.primary.withValues(alpha: 0.35),
                         blurRadius: 16,
                         offset: const Offset(0, 6),
                       ),
@@ -392,7 +392,7 @@ class _ExerciseCard extends StatelessWidget {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
+                color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(icon, color: color, size: 24),
@@ -450,7 +450,7 @@ class _MiniTag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: c.withOpacity(0.1),
+        color: c.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
@@ -553,7 +553,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                     width: 56,
                     height: 56,
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.12),
+                      color: color.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(icon, color: color, size: 26),
@@ -631,7 +631,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                         height: 24,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.12),
+                          color: color.withValues(alpha: 0.12),
                           shape: BoxShape.circle,
                         ),
                         child: Text(
@@ -704,7 +704,7 @@ class _StatChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: c.withOpacity(0.08),
+        color: c.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(

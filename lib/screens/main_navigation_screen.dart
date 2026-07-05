@@ -80,7 +80,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           onDestinationSelected: (index) =>
               setState(() => _currentIndex = index),
           backgroundColor: AppColors.surface,
-          indicatorColor: AppColors.primary.withOpacity(0.12),
+          indicatorColor: AppColors.primary.withValues(alpha: 0.12),
           elevation: 0,
           height: 66,
           destinations: const [

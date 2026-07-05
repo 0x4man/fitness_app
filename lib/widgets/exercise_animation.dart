@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
 
 /// Movement patterns used to animate the exercise icon — grouped by
 /// how the body moves during the rep, not by exact biomechanics.
@@ -11,8 +10,9 @@ enum MotionPattern { press, pull, squat, curl, hold, dynamic }
 /// per-exercise custom data.
 MotionPattern motionPatternFor(String exerciseName, String muscleGroup) {
   final name = exerciseName.toLowerCase();
-  if (name.contains('plank') || name.contains('hold'))
+  if (name.contains('plank') || name.contains('hold')) {
     return MotionPattern.hold;
+  }
   if (name.contains('curl') || name.contains('dip')) return MotionPattern.curl;
   if (name.contains('squat') ||
       name.contains('lunge') ||
@@ -21,15 +21,18 @@ MotionPattern motionPatternFor(String exerciseName, String muscleGroup) {
   }
   if (name.contains('pull') ||
       name.contains('row') ||
-      name.contains('deadlift')) return MotionPattern.pull;
+      name.contains('deadlift')) {
+    return MotionPattern.pull;
+  }
   if (name.contains('burpee') ||
       name.contains('swing') ||
       name.contains('mountain') ||
       name.contains('twist')) {
     return MotionPattern.dynamic;
   }
-  if (muscleGroup == 'Chest' || muscleGroup == 'Shoulders')
+  if (muscleGroup == 'Chest' || muscleGroup == 'Shoulders') {
     return MotionPattern.press;
+  }
   return MotionPattern.press;
 }
 
@@ -105,13 +108,13 @@ class _ExerciseAnimationState extends State<ExerciseAnimation>
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
-                          colors: [widget.color, widget.color.withOpacity(0.6)],
+                          colors: [widget.color, widget.color.withValues(alpha: 0.6)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: widget.color.withOpacity(0.5),
+                            color: widget.color.withValues(alpha: 0.5),
                             blurRadius: 24,
                             spreadRadius: 2,
                           ),
@@ -159,7 +162,7 @@ class _ExerciseAnimationState extends State<ExerciseAnimation>
       case MotionPattern.squat:
         return Offset(0, wave01 * 26); // dip down and back up
       case MotionPattern.curl:
-        return Offset(0, 0);
+        return const Offset(0, 0);
       case MotionPattern.hold:
         return Offset(
             0, sin(_controller.value * 2 * pi) * 3); // subtle breathing
