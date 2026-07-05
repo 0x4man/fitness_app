@@ -8,6 +8,7 @@ import '../../services/workout_log_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app_header.dart';
 import '../../widgets/app_snackbar.dart';
+import '../profile/profile_screen.dart';
 
 /// Progress Dashboard — BMI, weight trend line chart, workout
 /// consistency bar chart, and a week-over-week comparison. Pulls from
@@ -16,8 +17,7 @@ class ProgressDashboardScreen extends StatefulWidget {
   const ProgressDashboardScreen({super.key});
 
   @override
-  State<ProgressDashboardScreen> createState() =>
-      _ProgressDashboardScreenState();
+  State<ProgressDashboardScreen> createState() => _ProgressDashboardScreenState();
 }
 
 class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
@@ -88,9 +88,7 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
   }
 
   ({String label, Color color}) _bmiCategory(double bmi) {
-    if (bmi < 18.5) {
-      return (label: 'Underweight', color: const Color(0xFF3B82F6));
-    }
+    if (bmi < 18.5) return (label: 'Underweight', color: const Color(0xFF3B82F6));
     if (bmi < 25) return (label: 'Healthy', color: AppColors.accent);
     if (bmi < 30) return (label: 'Overweight', color: const Color(0xFFF59E0B));
     return (label: 'Obese', color: AppColors.error);
@@ -103,8 +101,7 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
     final result = await showDialog<double>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Log Today\'s Weight',
-            style: TextStyle(color: AppColors.textPrimary)),
+        title: const Text('Log Today\'s Weight', style: TextStyle(color: AppColors.textPrimary)),
         content: TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -121,8 +118,7 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel',
-                style: TextStyle(color: AppColors.textSecondary)),
+            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -138,9 +134,7 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
     if (result != null && result > 0) {
       await _weightLogService.logWeight(DateTime.now(), result);
       if (mounted) {
-        showAppMessage(
-            context, 'Weight logged: ${result.toStringAsFixed(1)} kg',
-            isError: false);
+        showAppMessage(context, 'Weight logged: ${result.toStringAsFixed(1)} kg', isError: false);
         _loadData();
       }
     }
@@ -161,18 +155,15 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline_rounded,
-                    color: AppColors.error, size: 40),
+                const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 40),
                 const SizedBox(height: 12),
                 Text(
                   _errorMessage!,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      color: AppColors.textSecondary, fontSize: 12.5),
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 12.5),
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
-                    onPressed: _loadData, child: const Text('Retry')),
+                ElevatedButton(onPressed: _loadData, child: const Text('Retry')),
               ],
             ),
           ),
@@ -193,21 +184,27 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
             children: [
-              const AppHeader(),
+              AppHeader(
+                onNotificationTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                  );
+                },
+                onAvatarTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                  );
+                },
+              ),
               const SizedBox(height: 18),
               const Text(
                 'Your Progress',
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 4),
               Text(
                 'Track how far you\'ve come.',
-                style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary.withValues(alpha: 0.9)),
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary.withValues(alpha: 0.9)),
               ),
               const SizedBox(height: 20),
 
@@ -229,17 +226,10 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
                   Expanded(
                     child: _ComparisonCard(
                       label: 'vs Last Week',
-                      value: weekChange == 0
-                          ? '±0'
-                          : (weekChange > 0 ? '+$weekChange' : '$weekChange'),
-                      sublabel: weekChange >= 0
-                          ? 'more consistent'
-                          : 'less than before',
-                      valueColor:
-                          weekChange >= 0 ? AppColors.accent : AppColors.error,
-                      icon: weekChange >= 0
-                          ? Icons.trending_up_rounded
-                          : Icons.trending_down_rounded,
+                      value: weekChange == 0 ? '±0' : (weekChange > 0 ? '+$weekChange' : '$weekChange'),
+                      sublabel: weekChange >= 0 ? 'more consistent' : 'less than before',
+                      valueColor: weekChange >= 0 ? AppColors.accent : AppColors.error,
+                      icon: weekChange >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
                     ),
                   ),
                 ],
@@ -252,16 +242,12 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
                 children: [
                   const Text(
                     'Weight Trend',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                   ),
                   GestureDetector(
                     onTap: _showLogWeightDialog,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(20),
@@ -269,15 +255,11 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.add_rounded,
-                              size: 15, color: AppColors.primary),
+                          Icon(Icons.add_rounded, size: 15, color: AppColors.primary),
                           SizedBox(width: 3),
                           Text(
                             'Log Weight',
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primary),
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary),
                           ),
                         ],
                       ),
@@ -292,17 +274,12 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
               // Workout consistency chart
               const Text(
                 'Workout Consistency',
-                style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 4),
               Text(
                 'Total sets logged per day, last 7 days',
-                style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary.withValues(alpha: 0.85)),
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary.withValues(alpha: 0.85)),
               ),
               const SizedBox(height: 12),
               _ConsistencyChartCard(dailySets: _dailySets),
@@ -334,10 +311,7 @@ class _BmiCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
-          BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.3),
-              blurRadius: 18,
-              offset: const Offset(0, 8)),
+          BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 18, offset: const Offset(0, 8)),
         ],
       ),
       child: Row(
@@ -358,27 +332,19 @@ class _BmiCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   bmi != null ? bmi!.toStringAsFixed(1) : '--',
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 40,
-                      fontWeight: FontWeight.w800,
-                      height: 1),
+                  style: const TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w800, height: 1),
                 ),
                 const SizedBox(height: 8),
                 if (category != null)
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       category!.label,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700),
+                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
                     ),
                   ),
               ],
@@ -401,8 +367,7 @@ class _BmiRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress =
-        bmi == null ? 0.0 : ((bmi! - 15) / (35 - 15)).clamp(0.0, 1.0);
+    final progress = bmi == null ? 0.0 : ((bmi! - 15) / (35 - 15)).clamp(0.0, 1.0);
     return SizedBox(
       width: 84,
       height: 84,
@@ -429,8 +394,7 @@ class _BmiRing extends StatelessWidget {
               backgroundColor: Colors.transparent,
             ),
           ),
-          const Icon(Icons.monitor_weight_rounded,
-              color: Colors.white, size: 26),
+          const Icon(Icons.monitor_weight_rounded, color: Colors.white, size: 26),
         ],
       ),
     );
@@ -464,11 +428,7 @@ class _ComparisonCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 11.5,
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w600)),
+          Text(label, style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -487,9 +447,7 @@ class _ComparisonCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 2),
-          Text(sublabel,
-              style: const TextStyle(
-                  fontSize: 11, color: AppColors.textSecondary)),
+          Text(sublabel, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
         ],
       ),
     );
@@ -516,9 +474,7 @@ class _WeightTrendCard extends StatelessWidget {
               child: Text(
                 'Log your weight on at least 2 days\nto see your trend.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 12.5,
-                    color: AppColors.textSecondary.withValues(alpha: 0.85)),
+                style: TextStyle(fontSize: 12.5, color: AppColors.textSecondary.withValues(alpha: 0.85)),
               ),
             )
           : LineChart(
@@ -527,15 +483,12 @@ class _WeightTrendCard extends StatelessWidget {
                   show: true,
                   drawVerticalLine: false,
                   horizontalInterval: _yInterval,
-                  getDrawingHorizontalLine: (value) =>
-                      const FlLine(color: AppColors.surfaceBorder, strokeWidth: 1),
+                  getDrawingHorizontalLine: (value) => const FlLine(color: AppColors.surfaceBorder, strokeWidth: 1),
                 ),
                 borderData: FlBorderData(show: false),
                 titlesData: FlTitlesData(
-                  topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
@@ -543,8 +496,7 @@ class _WeightTrendCard extends StatelessWidget {
                       interval: _yInterval,
                       getTitlesWidget: (value, meta) => Text(
                         value.toStringAsFixed(0),
-                        style: const TextStyle(
-                            fontSize: 10, color: AppColors.textSecondary),
+                        style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
                       ),
                     ),
                   ),
@@ -552,21 +504,16 @@ class _WeightTrendCard extends StatelessWidget {
                     sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: 22,
-                      interval: (history.length / 4)
-                          .ceilToDouble()
-                          .clamp(1, double.infinity),
+                      interval: (history.length / 4).ceilToDouble().clamp(1, double.infinity),
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
-                        if (index < 0 || index >= history.length) {
-                          return const SizedBox.shrink();
-                        }
+                        if (index < 0 || index >= history.length) return const SizedBox.shrink();
                         final date = history[index].date;
                         return Padding(
                           padding: const EdgeInsets.only(top: 6),
                           child: Text(
                             '${date.day}/${date.month}',
-                            style: const TextStyle(
-                                fontSize: 10, color: AppColors.textSecondary),
+                            style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
                           ),
                         );
                       },
@@ -587,8 +534,7 @@ class _WeightTrendCard extends StatelessWidget {
                     barWidth: 3,
                     dotData: FlDotData(
                       show: true,
-                      getDotPainter: (spot, percent, bar, index) =>
-                          FlDotCirclePainter(
+                      getDotPainter: (spot, percent, bar, index) => FlDotCirclePainter(
                         radius: 3.5,
                         color: AppColors.primary,
                         strokeWidth: 2,
@@ -598,10 +544,7 @@ class _WeightTrendCard extends StatelessWidget {
                     belowBarData: BarAreaData(
                       show: true,
                       gradient: LinearGradient(
-                        colors: [
-                          AppColors.primary.withValues(alpha: 0.25),
-                          AppColors.primary.withValues(alpha: 0.0)
-                        ],
+                        colors: [AppColors.primary.withValues(alpha: 0.25), AppColors.primary.withValues(alpha: 0.0)],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                       ),
@@ -613,10 +556,8 @@ class _WeightTrendCard extends StatelessWidget {
     );
   }
 
-  double get _minValue =>
-      history.map((e) => e.weightKg).reduce((a, b) => a < b ? a : b);
-  double get _maxValue =>
-      history.map((e) => e.weightKg).reduce((a, b) => a > b ? a : b);
+  double get _minValue => history.map((e) => e.weightKg).reduce((a, b) => a < b ? a : b);
+  double get _maxValue => history.map((e) => e.weightKg).reduce((a, b) => a > b ? a : b);
   double get _minY => (_minValue - 2).floorToDouble();
   double get _maxY => (_maxValue + 2).ceilToDouble();
   double get _yInterval => ((_maxY - _minY) / 4).clamp(1, double.infinity);
@@ -633,10 +574,7 @@ class _ConsistencyChartCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final maxSets = dailySets.isEmpty
         ? 1
-        : dailySets
-            .map((e) => e.value)
-            .reduce((a, b) => a > b ? a : b)
-            .clamp(1, 999);
+        : dailySets.map((e) => e.value).reduce((a, b) => a > b ? a : b).clamp(1, 999);
 
     return Container(
       height: 200,
@@ -654,21 +592,16 @@ class _ConsistencyChartCard extends StatelessWidget {
           borderData: FlBorderData(show: false),
           barTouchData: BarTouchData(enabled: false),
           titlesData: FlTitlesData(
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            leftTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 26,
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
-                  if (index < 0 || index >= dailySets.length) {
-                    return const SizedBox.shrink();
-                  }
+                  if (index < 0 || index >= dailySets.length) return const SizedBox.shrink();
                   final isToday = index == dailySets.length - 1;
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
@@ -677,9 +610,7 @@ class _ConsistencyChartCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
-                        color: isToday
-                            ? AppColors.textPrimary
-                            : AppColors.textSecondary,
+                        color: isToday ? AppColors.textPrimary : AppColors.textSecondary,
                       ),
                     ),
                   );
@@ -695,9 +626,7 @@ class _ConsistencyChartCard extends StatelessWidget {
               barRods: [
                 BarChartRodData(
                   toY: entry.value.toDouble(),
-                  color: entry.value > 0
-                      ? (isToday ? AppColors.accent : AppColors.primary)
-                      : AppColors.surfaceBorder,
+                  color: entry.value > 0 ? (isToday ? AppColors.accent : AppColors.primary) : AppColors.surfaceBorder,
                   width: 20,
                   borderRadius: BorderRadius.circular(6),
                 ),

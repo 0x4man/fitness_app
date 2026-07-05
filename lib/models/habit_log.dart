@@ -3,6 +3,7 @@ class HabitGoals {
   static const int waterGlasses = 8;
   static const double sleepHours = 8;
   static const int proteinGrams = 120;
+  static const int caloriesKcal = 2000;
 }
 
 /// One day's habit tracking, stored at `users/{uid}/habits/{yyyy-MM-dd}`
@@ -12,28 +13,36 @@ class HabitLog {
   final int waterGlasses;
   final double sleepHours;
   final int proteinGrams;
+  final int caloriesKcal;
 
   HabitLog({
     required this.date,
     this.waterGlasses = 0,
     this.sleepHours = 0,
     this.proteinGrams = 0,
+    this.caloriesKcal = 0,
   });
 
-  /// True if all three habits met their daily goal — used for the
+  /// True if all four habits met their daily goal — used for the
   /// weekly consistency strip.
   bool get isFullyComplete =>
       waterGlasses >= HabitGoals.waterGlasses &&
       sleepHours >= HabitGoals.sleepHours &&
-      proteinGrams >= HabitGoals.proteinGrams;
+      proteinGrams >= HabitGoals.proteinGrams &&
+      caloriesKcal >= HabitGoals.caloriesKcal;
 
-  HabitLog copyWith(
-      {int? waterGlasses, double? sleepHours, int? proteinGrams}) {
+  HabitLog copyWith({
+    int? waterGlasses,
+    double? sleepHours,
+    int? proteinGrams,
+    int? caloriesKcal,
+  }) {
     return HabitLog(
       date: date,
       waterGlasses: waterGlasses ?? this.waterGlasses,
       sleepHours: sleepHours ?? this.sleepHours,
       proteinGrams: proteinGrams ?? this.proteinGrams,
+      caloriesKcal: caloriesKcal ?? this.caloriesKcal,
     );
   }
 
@@ -41,6 +50,7 @@ class HabitLog {
         'waterGlasses': waterGlasses,
         'sleepHours': sleepHours,
         'proteinGrams': proteinGrams,
+        'caloriesKcal': caloriesKcal,
       };
 
   factory HabitLog.fromMap(String date, Map<String, dynamic> map) {
@@ -49,6 +59,7 @@ class HabitLog {
       waterGlasses: (map['waterGlasses'] ?? 0) as int,
       sleepHours: (map['sleepHours'] ?? 0).toDouble(),
       proteinGrams: (map['proteinGrams'] ?? 0) as int,
+      caloriesKcal: (map['caloriesKcal'] ?? 0) as int,
     );
   }
 

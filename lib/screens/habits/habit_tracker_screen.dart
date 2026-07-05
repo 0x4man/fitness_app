@@ -4,6 +4,7 @@ import '../../services/habit_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app_header.dart';
 import '../../widgets/habit_progress_row.dart';
+import '../profile/profile_screen.dart';
 
 /// Habit Tracker — log Water Intake, Sleep, and Protein for today,
 /// with quick-add controls and a 7-day consistency strip.
@@ -67,6 +68,16 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
     _refreshWeekSilently();
   }
 
+  Future<void> _updateCalories(int delta) async {
+    final current = _today!;
+    final updated = current.copyWith(
+      caloriesKcal: (current.caloriesKcal + delta).clamp(0, 9999),
+    );
+    setState(() => _today = updated);
+    await _habitService.saveLog(updated);
+    _refreshWeekSilently();
+  }
+
   Future<void> _refreshWeekSilently() async {
     final week = await _habitService.getLastSevenDays();
     if (mounted) setState(() => _week = week);
@@ -89,7 +100,18 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
             children: [
-              const AppHeader(),
+              AppHeader(
+                onNotificationTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                  );
+                },
+                onAvatarTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                  );
+                },
+              ),
               const SizedBox(height: 18),
               const Text(
                 'Today\'s Habits',
@@ -193,6 +215,37 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
                   ],
                 ),
               ),
+              const SizedBox(height: 14),
+
+              // Calories
+              _HabitCard(
+                icon: Icons.local_fire_department_rounded,
+                color: const Color(0xFFF59E0B),
+                title: 'Calories',
+                valueText:
+                    '${today.caloriesKcal} / ${HabitGoals.caloriesKcal} kcal',
+                progress: (today.caloriesKcal / HabitGoals.caloriesKcal)
+                    .clamp(0.0, 1.0),
+                child: Row(
+                  children: [
+                    _QuickButton(
+                        label: '-100', onTap: () => _updateCalories(-100)),
+                    const SizedBox(width: 8),
+                    _QuickButton(
+                        label: '+100', onTap: () => _updateCalories(100)),
+                    const SizedBox(width: 8),
+                    _QuickButton(
+                        label: '+250',
+                        onTap: () => _updateCalories(250),
+                        filled: true,
+                        color: const Color(0xFFF59E0B),
+                        darkText: true),
+                    const SizedBox(width: 8),
+                    _QuickButton(
+                        label: '+500', onTap: () => _updateCalories(500)),
+                  ],
+                ),
+              ),
               const SizedBox(height: 12),
             ],
           ),
@@ -223,12 +276,13 @@ class _WeekStrip extends StatelessWidget {
         children: List.generate(week.length, (i) {
           final log = week[i];
           final isToday = i == week.length - 1;
-          final progress =
-              ((log.waterGlasses / HabitGoals.waterGlasses).clamp(0.0, 1.0) +
-                      (log.sleepHours / HabitGoals.sleepHours).clamp(0.0, 1.0) +
-                      (log.proteinGrams / HabitGoals.proteinGrams)
-                          .clamp(0.0, 1.0)) /
-                  3;
+          final progress = ((log.waterGlasses / HabitGoals.waterGlasses)
+                      .clamp(0.0, 1.0) +
+                  (log.sleepHours / HabitGoals.sleepHours).clamp(0.0, 1.0) +
+                  (log.proteinGrams / HabitGoals.proteinGrams).clamp(0.0, 1.0) +
+                  (log.caloriesKcal / HabitGoals.caloriesKcal)
+                      .clamp(0.0, 1.0)) /
+              4;
           final color =
               Color.lerp(AppColors.surfaceBorder, AppColors.accent, progress)!;
 

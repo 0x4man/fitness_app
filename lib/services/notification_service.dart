@@ -23,6 +23,12 @@ class NotificationService {
     "5 minute ka excuse ban gaya poora din? Chalo ab uth jao 💪",
     "Netflix wait kar sakta hai. Muscles nahi. Chalo!",
     "Ek set hi sahi, shuru toh karo 😤",
+    "Kal se karunga wali list me ye bhi add ho gaya kya? Abhi kar lo 😅",
+    "Body ko notification bhej diya hai — workout due hai aapka.",
+    "Thoda paseena aaj, thoda swagger kal 😎",
+    "Sofa comfy hai, pata hai. Par 20 minute workout bhi utna hi zaroori hai.",
+    "Weights wait kar rahe hain. Bas aap late ho 🏋️",
+    "Aaj chhoti si win chahiye? Ek workout kar lo, done.",
   ];
 
   static const _waterMessages = [
@@ -30,12 +36,40 @@ class NotificationService {
     "Aapki kidneys ek chhota sa complaint file kar rahi hain. Paani piyo!",
     "Coffee count ho gaya, ab paani bhi gin lo ☕➡️💧",
     "Glass bhar paani, thodi der ka break — dono zaroori hain.",
+    "Dehydration silently attack karta hai. Ek glass abhi pi lo.",
+    "Skin glow chahiye? Step 1: paani piyo. Step 2: wahi phir se.",
+    "Bottle bhar ke rakho, bas 2 ghoont abhi le lo.",
   ];
 
   static const _habitCheckInMessages = [
     "Aaj ke habits check kiye? Protein target abhi bhi adhoora lag raha hai 🍗",
     "Din khatam hone wala hai — sleep aur protein log karna na bhoolna!",
     "Chhoti aadatein, bade results. Aaj ka progress daal do 📊",
+    "Habits tab khali baitha hai aapka wait kar raha hai.",
+    "2 minute nikaalo, aaj ka data update kar do — future wala aap thank you bolega.",
+  ];
+
+  static const _motivationMessages = [
+    "Discipline hamesha motivation se zyada tikta hai. Aaj bhi lage raho 🔥",
+    "Har chhota step count hota hai — chhod mat do.",
+    "Consistency > Perfection. Bas continue karte raho.",
+    "Aap kal se behtar ho rahe ho, chahe abhi na dikhe.",
+    "Progress slow lag sakta hai, lekin ruka hua nahi hai.",
+    "Aaj ka best effort hi kal ka result banega 💪",
+    "Comfort zone me results nahi milte. Thoda push karo aaj.",
+  ];
+
+  static const _caloriesMessages = [
+    "Aaj ka calorie/nutrition log update karna na bhoolna 🍽️",
+    "Khana track karna bhi utna hi important hai jitna workout — 2 min me daal do.",
+    "Goal ke paas ho ya door, pehle pata toh chale — calories log karo.",
+    "Ek chhota sa update: aaj kya khaya, wo bhi daal do 📝",
+  ];
+
+  static const _sleepReminderMessages = [
+    "Neend bhi ek recovery workout hai. Time pe so jao 😴",
+    "Kal ka best version chahiye? Aaj jaldi so jao.",
+    "Phone side rakho, 7-8 hours ki neend body ko chahiye.",
   ];
 
   String _randomFrom(List<String> messages) =>
@@ -144,40 +178,64 @@ class NotificationService {
   }
 
   /// Schedules the default set of daily reminders:
+  /// - 8:00 AM — morning motivation
   /// - 11:00 AM & 4:00 PM — hydration nudge
+  /// - 1:30 PM — calories/nutrition log reminder
   /// - 6:30 PM — workout reminder
   /// - 9:00 PM — evening habit check-in
+  /// - 10:30 PM — wind-down / sleep reminder
   Future<void> scheduleDailyReminders() async {
     await init();
     await cancelAll();
 
     await _scheduleDaily(
       id: 1,
+      hour: 8,
+      minute: 0,
+      title: '☀️ Good Morning',
+      body: _randomFrom(_motivationMessages),
+    );
+    await _scheduleDaily(
+      id: 2,
       hour: 11,
       minute: 0,
       title: '💧 Hydration Check',
       body: _randomFrom(_waterMessages),
     );
     await _scheduleDaily(
-      id: 2,
+      id: 3,
+      hour: 13,
+      minute: 30,
+      title: '🍽️ Nutrition Check',
+      body: _randomFrom(_caloriesMessages),
+    );
+    await _scheduleDaily(
+      id: 4,
       hour: 16,
       minute: 0,
       title: '💧 Hydration Check',
       body: _randomFrom(_waterMessages),
     );
     await _scheduleDaily(
-      id: 3,
+      id: 5,
       hour: 18,
       minute: 30,
       title: '🏋️ Workout Time',
       body: _randomFrom(_workoutMessages),
     );
     await _scheduleDaily(
-      id: 4,
+      id: 6,
       hour: 21,
       minute: 0,
       title: '✅ Quick Check-In',
       body: _randomFrom(_habitCheckInMessages),
+    );
+    await _scheduleDaily(
+      id: 7,
+      hour: 22,
+      minute: 30,
+      title: '😴 Wind Down',
+      body: _randomFrom(_sleepReminderMessages),
     );
   }
 

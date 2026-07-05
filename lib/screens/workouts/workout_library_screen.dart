@@ -7,6 +7,7 @@ import '../../services/exercise_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app_header.dart';
 import '../../widgets/exercise_animation.dart';
+import '../profile/profile_screen.dart';
 import 'active_workout_screen.dart';
 import 'workout_history_screen.dart';
 
@@ -127,9 +128,20 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
         bottom: false,
         child: Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
-              child: AppHeader(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: AppHeader(
+                onNotificationTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                  );
+                },
+                onAvatarTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                  );
+                },
+              ),
             ),
             const SizedBox(height: 18),
             Padding(
@@ -371,67 +383,75 @@ class _ExerciseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.surfaceBorder),
-          boxShadow: const [
-            BoxShadow(
-                color: AppColors.cardShadow,
-                blurRadius: 14,
-                offset: Offset(0, 5)),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(14),
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        splashColor: Colors.white.withValues(alpha: 0.12),
+        highlightColor: Colors.white.withValues(alpha: 0.06),
+        child: Ink(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: AppColors.surfaceBorder),
+            boxShadow: const [
+              BoxShadow(
+                  color: AppColors.cardShadow,
+                  blurRadius: 14,
+                  offset: Offset(0, 5)),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: color, size: 24),
               ),
-              child: Icon(icon, color: color, size: 24),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    exercise.name,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      exercise.name,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${exercise.muscleGroup} · ${exercise.equipment}',
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.textSecondary),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      _MiniTag(
-                          text:
-                              '${exercise.defaultSets} sets × ${exercise.defaultReps} reps'),
-                      const SizedBox(width: 6),
-                      _MiniTag(text: exercise.difficulty, color: color),
-                    ],
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      '${exercise.muscleGroup} · ${exercise.equipment}',
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.textSecondary),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        _MiniTag(
+                            text:
+                                '${exercise.defaultSets} sets × ${exercise.defaultReps} reps'),
+                        _MiniTag(text: exercise.difficulty, color: color),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const Icon(Icons.chevron_right_rounded,
-                color: AppColors.textSecondary),
-          ],
+              const Icon(Icons.chevron_right_rounded,
+                  color: AppColors.textSecondary),
+            ],
+          ),
         ),
       ),
     );
