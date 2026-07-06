@@ -9,6 +9,11 @@ import '../profile/profile_screen.dart';
 /// Habit Tracker — log Water Intake, Sleep, Protein, and Calories for
 /// today, with quick-add controls, a 7-day consistency strip, and an
 /// overall daily progress summary up top.
+///
+/// Goals for each habit can be customized by the user (tap the small
+/// edit icon next to any habit's target). Custom goals are kept in
+/// memory for this session — wire them up to HabitService if you want
+/// them to persist across app restarts.
 class HabitTrackerScreen extends StatefulWidget {
   const HabitTrackerScreen({super.key});
 
@@ -22,9 +27,19 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
   List<HabitLog> _week = [];
   bool _isLoading = true;
 
+  // User-editable goals. Defaulted from HabitGoals, but overridable.
+  late int _waterGoal;
+  late double _sleepGoal;
+  late int _proteinGoal;
+  late int _caloriesGoal;
+
   @override
   void initState() {
     super.initState();
+    _waterGoal = HabitGoals.waterGlasses;
+    _sleepGoal = HabitGoals.sleepHours;
+    _proteinGoal = HabitGoals.proteinGrams;
+    _caloriesGoal = HabitGoals.caloriesKcal;
     _load();
   }
 
@@ -85,11 +100,81 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
   }
 
   double _overallProgress(HabitLog log) {
-    return ((log.waterGlasses / HabitGoals.waterGlasses).clamp(0.0, 1.0) +
-            (log.sleepHours / HabitGoals.sleepHours).clamp(0.0, 1.0) +
-            (log.proteinGrams / HabitGoals.proteinGrams).clamp(0.0, 1.0) +
-            (log.caloriesKcal / HabitGoals.caloriesKcal).clamp(0.0, 1.0)) /
+    return ((log.waterGlasses / _waterGoal).clamp(0.0, 1.0) +
+            (log.sleepHours / _sleepGoal).clamp(0.0, 1.0) +
+            (log.proteinGrams / _proteinGoal).clamp(0.0, 1.0) +
+            (log.caloriesKcal / _caloriesGoal).clamp(0.0, 1.0)) /
         4;
+  }
+
+  /// Generic dialog to let the user set a custom goal/target for a habit.
+  Future<void> _editGoal({
+    required String title,
+    required String unit,
+    required num currentValue,
+    required bool isDouble,
+    required void Function(num newValue) onSave,
+  }) async {
+    final controller = TextEditingController(
+      text: isDouble
+          ? currentValue.toStringAsFixed(1)
+          : currentValue.toStringAsFixed(0),
+    );
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: AppColors.surface,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          title: Text(
+            'Set $title Goal',
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            keyboardType: TextInputType.numberWithOptions(decimal: isDouble),
+            style: const TextStyle(color: AppColors.textPrimary),
+            decoration: InputDecoration(
+              suffixText: unit,
+              suffixStyle: const TextStyle(color: AppColors.textSecondary),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.surfaceBorder),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.primary),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Cancel',
+                  style: TextStyle(color: AppColors.textSecondary)),
+            ),
+            TextButton(
+              onPressed: () {
+                final parsed = num.tryParse(controller.text.trim());
+                if (parsed != null && parsed > 0) {
+                  onSave(parsed);
+                  Navigator.of(ctx).pop();
+                }
+              },
+              child: const Text('Save',
+                  style: TextStyle(
+                      color: AppColors.primary, fontWeight: FontWeight.w700)),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -149,7 +234,13 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
               const SizedBox(height: 20),
 
               // Weekly consistency strip
-              _WeekStrip(week: _week),
+              _WeekStrip(
+                week: _week,
+                waterGoal: _waterGoal,
+                sleepGoal: _sleepGoal,
+                proteinGoal: _proteinGoal,
+                caloriesGoal: _caloriesGoal,
+              ),
               const SizedBox(height: 24),
 
               // Water
@@ -157,10 +248,15 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
                 icon: Icons.water_drop_rounded,
                 gradient: const [Color(0xFF60A5FA), Color(0xFF3B82F6)],
                 title: 'Water Intake',
-                valueText:
-                    '${today.waterGlasses} / ${HabitGoals.waterGlasses} glasses',
-                progress: (today.waterGlasses / HabitGoals.waterGlasses)
-                    .clamp(0.0, 1.0),
+                valueText: '${today.waterGlasses} / $_waterGoal glasses',
+                progress: (today.waterGlasses / _waterGoal).clamp(0.0, 1.0),
+                onEditGoal: () => _editGoal(
+                  title: 'Water',
+                  unit: 'glasses',
+                  currentValue: _waterGoal,
+                  isDouble: false,
+                  onSave: (v) => setState(() => _waterGoal = v.toInt()),
+                ),
                 child: Row(
                   children: [
                     _QuickButton(label: '-1', onTap: () => _updateWater(-1)),
@@ -178,25 +274,52 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
               ),
               const SizedBox(height: 14),
 
-              
-              // Sleep
+              // Sleep — FIXED: preset buttons are now direct Row children
+              // (no Padding wrapper), so _QuickButton's internal Expanded
+              // always has a valid Row/Column parent. Filled state is now
+              // dynamic, matching today's actual logged sleep value.
               _HabitCard(
                 icon: Icons.bedtime_rounded,
                 gradient: const [Color(0xFFA78BFA), Color(0xFF8B5CF6)],
                 title: 'Sleep',
                 valueText:
-                    '${today.sleepHours.toStringAsFixed(1)} / ${HabitGoals.sleepHours.toStringAsFixed(0)} hrs',
-                progress: HabitGoals.sleepHours > 0
-                    ? (today.sleepHours / HabitGoals.sleepHours).clamp(0.0, 1.0)
+                    '${today.sleepHours.toStringAsFixed(1)} / ${_sleepGoal.toStringAsFixed(0)} hrs',
+                progress: _sleepGoal > 0
+                    ? (today.sleepHours / _sleepGoal).clamp(0.0, 1.0)
                     : 0.0,
-                child: const Center(
-                  child: Text(
-                    'Sleep Test',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                onEditGoal: () => _editGoal(
+                  title: 'Sleep',
+                  unit: 'hrs',
+                  currentValue: _sleepGoal,
+                  isDouble: true,
+                  onSave: (v) => setState(() => _sleepGoal = v.toDouble()),
+                ),
+                child: Row(
+                  children: [
+                    _QuickButton(
+                        label: '6h',
+                        onTap: () => _setSleep(6.0),
+                        filled: today.sleepHours == 6.0,
+                        color: const Color(0xFF8B5CF6)),
+                    const SizedBox(width: 8),
+                    _QuickButton(
+                        label: '7h',
+                        onTap: () => _setSleep(7.0),
+                        filled: today.sleepHours == 7.0,
+                        color: const Color(0xFF8B5CF6)),
+                    const SizedBox(width: 8),
+                    _QuickButton(
+                        label: '8h',
+                        onTap: () => _setSleep(8.0),
+                        filled: today.sleepHours == 8.0,
+                        color: const Color(0xFF8B5CF6)),
+                    const SizedBox(width: 8),
+                    _QuickButton(
+                        label: '9h',
+                        onTap: () => _setSleep(9.0),
+                        filled: today.sleepHours == 9.0,
+                        color: const Color(0xFF8B5CF6)),
+                  ],
                 ),
               ),
               const SizedBox(height: 14),
@@ -206,10 +329,15 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
                 icon: Icons.egg_alt_rounded,
                 gradient: AppColors.heroGradient,
                 title: 'Protein',
-                valueText:
-                    '${today.proteinGrams} / ${HabitGoals.proteinGrams} g',
-                progress: (today.proteinGrams / HabitGoals.proteinGrams)
-                    .clamp(0.0, 1.0),
+                valueText: '${today.proteinGrams} / $_proteinGoal g',
+                progress: (today.proteinGrams / _proteinGoal).clamp(0.0, 1.0),
+                onEditGoal: () => _editGoal(
+                  title: 'Protein',
+                  unit: 'g',
+                  currentValue: _proteinGoal,
+                  isDouble: false,
+                  onSave: (v) => setState(() => _proteinGoal = v.toInt()),
+                ),
                 child: Row(
                   children: [
                     _QuickButton(
@@ -237,10 +365,15 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
                 icon: Icons.local_fire_department_rounded,
                 gradient: const [Color(0xFFFBBF24), Color(0xFFF59E0B)],
                 title: 'Calories',
-                valueText:
-                    '${today.caloriesKcal} / ${HabitGoals.caloriesKcal} kcal',
-                progress: (today.caloriesKcal / HabitGoals.caloriesKcal)
-                    .clamp(0.0, 1.0),
+                valueText: '${today.caloriesKcal} / $_caloriesGoal kcal',
+                progress: (today.caloriesKcal / _caloriesGoal).clamp(0.0, 1.0),
+                onEditGoal: () => _editGoal(
+                  title: 'Calories',
+                  unit: 'kcal',
+                  currentValue: _caloriesGoal,
+                  isDouble: false,
+                  onSave: (v) => setState(() => _caloriesGoal = v.toInt()),
+                ),
                 child: Row(
                   children: [
                     _QuickButton(
@@ -367,8 +500,18 @@ class _OverallProgressCard extends StatelessWidget {
 
 class _WeekStrip extends StatelessWidget {
   final List<HabitLog> week;
+  final int waterGoal;
+  final double sleepGoal;
+  final int proteinGoal;
+  final int caloriesGoal;
 
-  const _WeekStrip({required this.week});
+  const _WeekStrip({
+    required this.week,
+    required this.waterGoal,
+    required this.sleepGoal,
+    required this.proteinGoal,
+    required this.caloriesGoal,
+  });
 
   static const _dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
@@ -392,12 +535,10 @@ class _WeekStrip extends StatelessWidget {
         children: List.generate(week.length, (i) {
           final log = week[i];
           final isToday = i == week.length - 1;
-          final progress = ((log.waterGlasses / HabitGoals.waterGlasses)
-                      .clamp(0.0, 1.0) +
-                  (log.sleepHours / HabitGoals.sleepHours).clamp(0.0, 1.0) +
-                  (log.proteinGrams / HabitGoals.proteinGrams).clamp(0.0, 1.0) +
-                  (log.caloriesKcal / HabitGoals.caloriesKcal)
-                      .clamp(0.0, 1.0)) /
+          final progress = ((log.waterGlasses / waterGoal).clamp(0.0, 1.0) +
+                  (log.sleepHours / sleepGoal).clamp(0.0, 1.0) +
+                  (log.proteinGrams / proteinGoal).clamp(0.0, 1.0) +
+                  (log.caloriesKcal / caloriesGoal).clamp(0.0, 1.0)) /
               4;
           final color =
               Color.lerp(AppColors.surfaceBorder, AppColors.accent, progress)!;
@@ -454,6 +595,7 @@ class _HabitCard extends StatelessWidget {
   final String valueText;
   final double progress;
   final Widget child;
+  final VoidCallback? onEditGoal;
 
   const _HabitCard({
     required this.icon,
@@ -462,6 +604,7 @@ class _HabitCard extends StatelessWidget {
     required this.valueText,
     required this.progress,
     required this.child,
+    this.onEditGoal,
   });
 
   @override
@@ -514,6 +657,15 @@ class _HabitCard extends StatelessWidget {
                   color: gradient.last,
                 ),
               ),
+              if (onEditGoal != null)
+                IconButton(
+                  onPressed: onEditGoal,
+                  icon: const Icon(Icons.edit_rounded, size: 16),
+                  color: AppColors.textSecondary,
+                  visualDensity: VisualDensity.compact,
+                  splashRadius: 18,
+                  tooltip: 'Edit goal',
+                ),
             ],
           ),
           const SizedBox(height: 16),
