@@ -85,7 +85,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
       case 'Advanced':
         return AppColors.error;
       default:
-        return const Color(0xFFF59E0B);
+        return const Color(0xFFC9822B); // heavier amber, matches burgundy set
     }
   }
 
@@ -143,28 +143,42 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                 },
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 22),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Workout Library',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'WORKOUT LIBRARY',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 2.2,
+                            color: AppColors.primary.withValues(alpha: 0.9),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'The Arsenal',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.6,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(
-                        '${_filteredExercises.length} exercises',
-                        style: const TextStyle(
-                            fontSize: 12.5, color: AppColors.textSecondary),
-                      ),
-                      const SizedBox(width: 10),
                       GestureDetector(
                         onTap: () {
                           Navigator.of(context).push(
@@ -173,14 +187,16 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                           );
                         },
                         child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
                             color: AppColors.surface,
                             shape: BoxShape.circle,
-                            boxShadow: [
+                            border: Border.all(
+                                color: AppColors.surfaceBorder, width: 1),
+                            boxShadow: const [
                               BoxShadow(
                                   color: AppColors.cardShadow,
-                                  blurRadius: 8,
+                                  blurRadius: 10,
                                   offset: Offset(0, 3)),
                             ],
                           ),
@@ -188,14 +204,24 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                               size: 18, color: AppColors.textPrimary),
                         ),
                       ),
+                      const SizedBox(height: 6),
+                      Text(
+                        '${_filteredExercises.length} MOVES',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 18),
             SizedBox(
-              height: 40,
+              height: 42,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -208,23 +234,43 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                     onTap: () => setState(() => _selectedFilter = filter),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color:
-                            isSelected ? AppColors.primary : AppColors.surface,
-                        borderRadius: BorderRadius.circular(20),
+                        gradient: isSelected
+                            ? const LinearGradient(
+                                colors: [
+                                  AppColors.primary,
+                                  AppColors.primaryDark,
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                            : null,
+                        color: isSelected ? null : AppColors.surface,
+                        borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
                               ? AppColors.primary
                               : AppColors.surfaceBorder,
                         ),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color:
+                                      AppColors.primary.withValues(alpha: 0.4),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ]
+                            : null,
                       ),
                       child: Text(
-                        filter,
+                        filter.toUpperCase(),
                         style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.6,
                           color: isSelected
                               ? Colors.white
                               : AppColors.textSecondary,
@@ -235,7 +281,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                 },
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -276,6 +322,8 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                             )
                           : RefreshIndicator(
                               onRefresh: _loadExercises,
+                              color: AppColors.primary,
+                              backgroundColor: AppColors.surface,
                               child: ListView.separated(
                                 padding:
                                     const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -314,19 +362,21 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                 },
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 17),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: AppColors.heroGradient,
+                      colors: [AppColors.primary, AppColors.primaryDark],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                     ),
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(16),
+                    border:
+                        Border.all(color: Colors.white.withValues(alpha: 0.08)),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.35),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
+                        color: AppColors.primary.withValues(alpha: 0.45),
+                        blurRadius: 18,
+                        offset: const Offset(0, 8),
                       ),
                     ],
                   ),
@@ -337,20 +387,23 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          '${session.exerciseCount} exercise${session.exerciseCount == 1 ? '' : 's'} added',
+                          '${session.exerciseCount} EXERCISE${session.exerciseCount == 1 ? '' : 'S'} LOADED'
+                              .toUpperCase(),
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.4,
                           ),
                         ),
                       ),
                       const Text(
-                        'Start Workout',
+                        'BEGIN',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 13.5,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.8,
                         ),
                       ),
                       const SizedBox(width: 4),
@@ -385,97 +438,124 @@ class _ExerciseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
-        splashColor: Colors.white.withValues(alpha: 0.12),
-        highlightColor: Colors.white.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(16),
+        splashColor: color.withValues(alpha: 0.1),
+        highlightColor: Colors.white.withValues(alpha: 0.04),
         child: Ink(
-          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.surfaceBorder),
             boxShadow: const [
               BoxShadow(
                   color: AppColors.cardShadow,
-                  blurRadius: 14,
-                  offset: Offset(0, 5)),
+                  blurRadius: 16,
+                  offset: Offset(0, 6)),
             ],
           ),
-          child: Row(
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Difficulty accent stripe — the card's "weight class" marker
+                Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: const BorderRadius.horizontal(
+                        left: Radius.circular(16)),
+                  ),
                 ),
-                child: Icon(icon, color: color, size: 24),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      exercise.name,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${exercise.muscleGroup} · ${exercise.equipment}',
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.textSecondary),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 16, 16, 16),
+                    child: Row(
                       children: [
-                        _MiniTag(
-                            text:
-                                '${exercise.defaultSets} sets × ${exercise.defaultReps} reps'),
-                        _MiniTag(text: exercise.difficulty, color: color),
+                        Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceElevated,
+                            borderRadius: BorderRadius.circular(13),
+                            border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.06)),
+                          ),
+                          child: Icon(icon,
+                              color: AppColors.textPrimary, size: 22),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                exercise.name,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -0.2,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                '${exercise.muscleGroup.toUpperCase()} · ${exercise.equipment.toUpperCase()}',
+                                style: TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                  color: AppColors.textSecondary
+                                      .withValues(alpha: 0.85),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Text(
+                                    '${exercise.defaultSets} × ${exercise.defaultReps}',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: color.withValues(alpha: 0.14),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      exercise.difficulty.toUpperCase(),
+                                      style: TextStyle(
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: 0.4,
+                                        color: color,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.chevron_right_rounded,
+                            color:
+                                AppColors.textSecondary.withValues(alpha: 0.6)),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-              const Icon(Icons.chevron_right_rounded,
-                  color: AppColors.textSecondary),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _MiniTag extends StatelessWidget {
-  final String text;
-  final Color? color;
-
-  const _MiniTag({required this.text, this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = color ?? AppColors.textSecondary;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: c.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: c),
       ),
     );
   }
@@ -502,23 +582,24 @@ class _ExerciseDetailSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.65,
+      initialChildSize: 0.68,
       minChildSize: 0.4,
-      maxChildSize: 0.9,
+      maxChildSize: 0.92,
       expand: false,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: AppColors.surfaceElevated,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
           ),
           child: ListView(
             controller: scrollController,
-            padding: const EdgeInsets.fromLTRB(24, 14, 24, 30),
+            padding: const EdgeInsets.fromLTRB(24, 14, 24, 34),
             children: [
               Center(
                 child: Container(
-                  width: 42,
+                  width: 44,
                   height: 5,
                   decoration: BoxDecoration(
                     color: AppColors.surfaceBorder,
@@ -526,7 +607,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 22),
               Center(
                 child: ExerciseAnimation(
                   icon: icon,
@@ -536,29 +617,30 @@ class _ExerciseDetailSheet extends StatelessWidget {
                   size: 170,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Center(
                 child: GestureDetector(
                   onTap: () => _openVideoDemo(exercise.name),
                   child: Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.surfaceBorder),
+                      color: AppColors.background,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: color.withValues(alpha: 0.4)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.play_circle_fill_rounded,
                             size: 18, color: color),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 7),
                         Text(
-                          'Watch Video Demo',
+                          'WATCH FORM DEMO',
                           style: TextStyle(
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.6,
                               color: color),
                         ),
                       ],
@@ -566,110 +648,128 @@ class _ExerciseDetailSheet extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(icon, color: color, size: 26),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          exercise.name,
-                          style: const TextStyle(
-                            fontSize: 19,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${exercise.muscleGroup} · ${exercise.equipment}',
-                          style: const TextStyle(
-                              fontSize: 13, color: AppColors.textSecondary),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: _StatChip(
-                      label: 'Sets',
-                      value: '${exercise.defaultSets}',
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _StatChip(
-                      label: 'Reps',
-                      value: '${exercise.defaultReps}',
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _StatChip(
-                      label: 'Level',
-                      value: exercise.difficulty,
-                      color: color,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Instructions',
+              const SizedBox(height: 26),
+              Text(
+                exercise.muscleGroup.toUpperCase(),
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
+                  letterSpacing: 1.8,
+                  color: color,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                exercise.name,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 4),
+              Text(
+                'Equipment · ${exercise.equipment}',
+                style: const TextStyle(
+                    fontSize: 12.5, color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 22),
+
+              // Unified stat bar — structured blocks with dividers,
+              // instead of separate floating chips.
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.surfaceBorder),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _StatBlock(
+                          label: 'SETS', value: '${exercise.defaultSets}'),
+                    ),
+                    _StatDivider(),
+                    Expanded(
+                      child: _StatBlock(
+                          label: 'REPS', value: '${exercise.defaultReps}'),
+                    ),
+                    _StatDivider(),
+                    Expanded(
+                      child: _StatBlock(
+                        label: 'LEVEL',
+                        value: exercise.difficulty,
+                        color: color,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 28),
+              Row(
+                children: [
+                  Container(
+                    width: 3,
+                    height: 16,
+                    color: AppColors.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'INSTRUCTIONS',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.2,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
               ...exercise.instructions.asMap().entries.map((entry) {
                 final index = entry.key + 1;
                 final step = entry.value;
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.only(bottom: 16),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        width: 24,
-                        height: 24,
+                        width: 26,
+                        height: 26,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: color.withValues(alpha: 0.12),
+                          color: AppColors.primary,
                           shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withValues(alpha: 0.4),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Text(
                           '$index',
-                          style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: color),
+                          style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 14),
                       Expanded(
-                        child: Text(
-                          step,
-                          style: const TextStyle(
-                            fontSize: 13.5,
-                            color: AppColors.textPrimary,
-                            height: 1.4,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 3),
+                          child: Text(
+                            step,
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              color: AppColors.textPrimary,
+                              height: 1.5,
+                            ),
                           ),
                         ),
                       ),
@@ -677,7 +777,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                   ),
                 );
               }),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               ElevatedButton.icon(
                 onPressed: () {
                   final session = Provider.of<WorkoutSessionProvider>(context,
@@ -701,7 +801,10 @@ class _ExerciseDetailSheet extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.add_task_rounded),
-                label: const Text('Add to Today\'s Workout'),
+                label: Text(
+                  'ADD TO TODAY\'S WORKOUT',
+                  style: TextStyle(letterSpacing: 0.4),
+                ),
               ),
             ],
           ),
@@ -711,37 +814,48 @@ class _ExerciseDetailSheet extends StatelessWidget {
   }
 }
 
-class _StatChip extends StatelessWidget {
+class _StatBlock extends StatelessWidget {
   final String label;
   final String value;
   final Color? color;
 
-  const _StatChip({required this.label, required this.value, this.color});
+  const _StatBlock({required this.label, required this.value, this.color});
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? AppColors.primary;
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 19,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.3,
+            color: color ?? AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.2,
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatDivider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: c.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style:
-                TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: c),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style:
-                const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-          ),
-        ],
-      ),
+      width: 1,
+      height: 32,
+      color: AppColors.surfaceBorder,
     );
   }
 }

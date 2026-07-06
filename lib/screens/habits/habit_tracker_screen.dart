@@ -178,6 +178,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
               ),
               const SizedBox(height: 14),
 
+              
               // Sleep
               _HabitCard(
                 icon: Icons.bedtime_rounded,
@@ -185,21 +186,17 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
                 title: 'Sleep',
                 valueText:
                     '${today.sleepHours.toStringAsFixed(1)} / ${HabitGoals.sleepHours.toStringAsFixed(0)} hrs',
-                progress:
-                    (today.sleepHours / HabitGoals.sleepHours).clamp(0.0, 1.0),
-                child: Row(
-                  children: [6, 7, 8, 9].map((h) {
-                    final isSelected = today.sleepHours == h.toDouble();
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: _QuickButton(
-                        label: '${h}h',
-                        onTap: () => _setSleep(h.toDouble()),
-                        filled: isSelected,
-                        color: const Color(0xFF8B5CF6),
-                      ),
-                    );
-                  }).toList(),
+                progress: HabitGoals.sleepHours > 0
+                    ? (today.sleepHours / HabitGoals.sleepHours).clamp(0.0, 1.0)
+                    : 0.0,
+                child: const Center(
+                  child: Text(
+                    'Sleep Test',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 14),
