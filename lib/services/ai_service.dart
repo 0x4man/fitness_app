@@ -77,7 +77,7 @@ class AiService {
   String _buildSystemPrompt(UserProfile? profile) {
     final buffer = StringBuffer()
       ..writeln(
-        'You are the AI Coach inside FitTrack, a fitness tracking app. '
+        'You are the AI Coach inside Viora, a fitness tracking app. '
         'Give concise, practical, encouraging advice on workouts, nutrition, '
         'recovery, and healthy habits. Keep replies short and mobile-friendly '
         '(a few sentences, or a short bullet list) unless the user explicitly '
@@ -91,7 +91,7 @@ class AiService {
         '\nThe user\'s profile: ${profile.age} years old, ${profile.gender}, '
         '${profile.heightCm.toStringAsFixed(0)}cm tall, ${profile.weightKg.toStringAsFixed(0)}kg, '
         'goal: ${profile.fitnessGoal}. Tailor advice to this when relevant, '
-        'but don\'t force it into every reply.',
+        'but don\'t force it int reply.',
       );
     }
 

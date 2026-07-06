@@ -105,15 +105,15 @@ class NotificationService {
     if (_permissionRequestInProgress) return false;
     _permissionRequestInProgress = true;
     try {
-      final androidGranted = await _plugin
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.requestNotificationsPermission();
+      final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      final androidGranted =
+          await androidPlugin?.requestNotificationsPermission();
 
-      final iosGranted = await _plugin
-          .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(alert: true, badge: true, sound: true);
+      final iosPlugin = _plugin.resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>();
+      final iosGranted = await iosPlugin?.requestPermissions(
+          alert: true, badge: true, sound: true);
 
       return (androidGranted ?? true) || (iosGranted ?? true);
     } catch (_) {
@@ -128,7 +128,7 @@ class NotificationService {
   NotificationDetails get _details => const NotificationDetails(
         android: AndroidNotificationDetails(
           'fittrack_reminders',
-          'FitTrack Reminders',
+          'Viora Reminders',
           channelDescription: 'Workout, hydration, and habit reminders',
           importance: Importance.high,
           priority: Priority.high,

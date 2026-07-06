@@ -24,25 +24,15 @@ class AppHeader extends StatelessWidget {
     return Row(
       children: [
         // Logo mark
-        Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: AppColors.heroGradient,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(11),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.35),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
+        
+        ClipRRect(
+          borderRadius: BorderRadius.circular(11),
+          child: Image.asset(
+            'assets/icon/viora_monogram_dark.png',
+            width: 38,
+            height: 38,
+            fit: BoxFit.cover,
           ),
-          child: const Icon(Icons.bolt_rounded, color: Colors.white, size: 22),
         ),
         const SizedBox(width: 10),
         // Wordmark
@@ -50,7 +40,7 @@ class AppHeader extends StatelessWidget {
           TextSpan(
             children: [
               TextSpan(
-                text: 'Fit',
+                text: 'Vio',
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -58,7 +48,7 @@ class AppHeader extends StatelessWidget {
                 ),
               ),
               TextSpan(
-                text: 'Track',
+                text: 'ra',
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,

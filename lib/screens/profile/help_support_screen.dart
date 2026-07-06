@@ -48,8 +48,8 @@ class HelpSupportScreen extends StatelessWidget {
   Future<void> _contactSupport() async {
     final uri = Uri(
       scheme: 'mailto',
-      path: 'support@fittrack.app',
-      query: 'subject=${Uri.encodeComponent('FitTrack Support Request')}',
+      path: 'support@viora.app',
+      query: 'subject=${Uri.encodeComponent('Viora Support Request')}',
     );
     await launchUrl(uri);
   }
@@ -96,7 +96,8 @@ class HelpSupportScreen extends StatelessWidget {
                 Text(
                   'Send us an email and we\'ll get back to you.',
                   style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.9), fontSize: 12.5),
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontSize: 12.5),
                 ),
                 const SizedBox(height: 16),
                 SizedBox(

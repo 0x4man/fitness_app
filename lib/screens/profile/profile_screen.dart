@@ -321,7 +321,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   _OptionTile(
                     icon: Icons.info_outline_rounded,
-                    label: 'About FitTrack',
+                    label: 'About Viora',
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => const AboutScreen()),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 
-/// About FitTrack — branding, version, and a short description of
+/// About Viora — branding, version, and a short description of
 /// what the app does.
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -17,25 +17,14 @@ class AboutScreen extends StatelessWidget {
           Center(
             child: Column(
               children: [
-                Container(
-                  width: 84,
-                  height: 84,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: AppColors.heroGradient,
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.4),
-                          blurRadius: 24,
-                          offset: const Offset(0, 10)),
-                    ],
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Image.asset(
+                    'assets/icon/viora_monogram_dark.png',
+                    width: 84,
+                    height: 84,
+                    fit: BoxFit.cover,
                   ),
-                  child: const Icon(Icons.bolt_rounded,
-                      color: Colors.white, size: 44),
                 ),
                 const SizedBox(height: 16),
                 RichText(
@@ -43,20 +32,27 @@ class AboutScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
                     children: [
                       TextSpan(
-                          text: 'Fit',
+                          text: 'Vio',
                           style: TextStyle(color: AppColors.textPrimary)),
                       TextSpan(
-                          text: 'Track',
+                          text: 'ra',
                           style: TextStyle(color: AppColors.primary)),
                     ],
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Version 1.0.0',
+                  'Your journey, your pace',
                   style: TextStyle(
                       fontSize: 12.5,
                       color: AppColors.textSecondary.withValues(alpha: 0.85)),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Version 1.0.0',
+                  style: TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textSecondary.withValues(alpha: 0.7)),
                 ),
               ],
             ),
@@ -70,7 +66,7 @@ class AboutScreen extends StatelessWidget {
               border: Border.all(color: AppColors.surfaceBorder),
             ),
             child: const Text(
-              'FitTrack is your all-in-one fitness companion — plan and log '
+              'Viora is your all-in-one fitness companion — plan and log '
               'workouts, track daily habits like water, sleep, and protein, '
               'monitor your weight and BMI over time, and get nudged (in a '
               'fun way) to stay consistent. Built to help you show up for '

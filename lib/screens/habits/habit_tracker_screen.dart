@@ -6,8 +6,9 @@ import '../../widgets/app_header.dart';
 import '../../widgets/habit_progress_row.dart';
 import '../profile/profile_screen.dart';
 
-/// Habit Tracker — log Water Intake, Sleep, and Protein for today,
-/// with quick-add controls and a 7-day consistency strip.
+/// Habit Tracker — log Water Intake, Sleep, Protein, and Calories for
+/// today, with quick-add controls, a 7-day consistency strip, and an
+/// overall daily progress summary up top.
 class HabitTrackerScreen extends StatefulWidget {
   const HabitTrackerScreen({super.key});
 
@@ -83,6 +84,14 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
     if (mounted) setState(() => _week = week);
   }
 
+  double _overallProgress(HabitLog log) {
+    return ((log.waterGlasses / HabitGoals.waterGlasses).clamp(0.0, 1.0) +
+            (log.sleepHours / HabitGoals.sleepHours).clamp(0.0, 1.0) +
+            (log.proteinGrams / HabitGoals.proteinGrams).clamp(0.0, 1.0) +
+            (log.caloriesKcal / HabitGoals.caloriesKcal).clamp(0.0, 1.0)) /
+        4;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading || _today == null) {
@@ -90,6 +99,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
     }
 
     final today = _today!;
+    final overall = _overallProgress(today);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -97,6 +107,8 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
         bottom: false,
         child: RefreshIndicator(
           onRefresh: _load,
+          color: AppColors.primary,
+          backgroundColor: AppColors.surface,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
             children: [
@@ -112,12 +124,13 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
                   );
                 },
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 22),
               const Text(
                 'Today\'s Habits',
                 style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
                   color: AppColors.textPrimary,
                 ),
               ),
@@ -125,9 +138,14 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
               Text(
                 'Small daily habits, big results.',
                 style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary.withValues(alpha: 0.9)),
+                  fontSize: 12.5,
+                  color: AppColors.textSecondary.withValues(alpha: 0.75),
+                ),
               ),
+              const SizedBox(height: 22),
+
+              // Hero overall-progress summary
+              _OverallProgressCard(progress: overall),
               const SizedBox(height: 20),
 
               // Weekly consistency strip
@@ -137,7 +155,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
               // Water
               _HabitCard(
                 icon: Icons.water_drop_rounded,
-                color: const Color(0xFF3B82F6),
+                gradient: const [Color(0xFF60A5FA), Color(0xFF3B82F6)],
                 title: 'Water Intake',
                 valueText:
                     '${today.waterGlasses} / ${HabitGoals.waterGlasses} glasses',
@@ -163,7 +181,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
               // Sleep
               _HabitCard(
                 icon: Icons.bedtime_rounded,
-                color: const Color(0xFF8B5CF6),
+                gradient: const [Color(0xFFA78BFA), Color(0xFF8B5CF6)],
                 title: 'Sleep',
                 valueText:
                     '${today.sleepHours.toStringAsFixed(1)} / ${HabitGoals.sleepHours.toStringAsFixed(0)} hrs',
@@ -189,7 +207,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
               // Protein
               _HabitCard(
                 icon: Icons.egg_alt_rounded,
-                color: AppColors.accent,
+                gradient: AppColors.heroGradient,
                 title: 'Protein',
                 valueText:
                     '${today.proteinGrams} / ${HabitGoals.proteinGrams} g',
@@ -220,7 +238,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
               // Calories
               _HabitCard(
                 icon: Icons.local_fire_department_rounded,
-                color: const Color(0xFFF59E0B),
+                gradient: const [Color(0xFFFBBF24), Color(0xFFF59E0B)],
                 title: 'Calories',
                 valueText:
                     '${today.caloriesKcal} / ${HabitGoals.caloriesKcal} kcal',
@@ -255,6 +273,101 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
   }
 }
 
+/// Hero card at the top showing today's combined completion across all
+/// four habits, as a single glanceable ring + message.
+class _OverallProgressCard extends StatelessWidget {
+  final double progress; // 0.0 - 1.0
+
+  const _OverallProgressCard({required this.progress});
+
+  String get _message {
+    if (progress >= 1.0) return 'Perfect day. You showed up 💪';
+    if (progress >= 0.7) return 'Almost there — keep going!';
+    if (progress >= 0.4) return 'Good start, don\'t stop now.';
+    return 'Let\'s get today moving.';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pct = (progress * 100).round();
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: AppColors.heroGradient,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.35),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 64,
+            height: 64,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: progress.clamp(0.0, 1.0)),
+                  duration: const Duration(milliseconds: 700),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, value, _) => CircularProgressIndicator(
+                    value: value,
+                    strokeWidth: 6,
+                    backgroundColor: Colors.white.withValues(alpha: 0.25),
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+                Text(
+                  '$pct%',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Today\'s Progress',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _message,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _WeekStrip extends StatelessWidget {
   final List<HabitLog> week;
 
@@ -265,11 +378,17 @@ class _WeekStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.surfaceBorder),
+        boxShadow: const [
+          BoxShadow(
+              color: AppColors.cardShadow,
+              blurRadius: 12,
+              offset: Offset(0, 4)),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -292,20 +411,30 @@ class _WeekStrip extends StatelessWidget {
                 _dayLabels[DateTime.parse(log.date).weekday - 1],
                 style: TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   color:
                       isToday ? AppColors.textPrimary : AppColors.textSecondary,
                 ),
               ),
-              const SizedBox(height: 8),
-              Container(
-                width: 28,
-                height: 28,
+              const SizedBox(height: 10),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                width: 30,
+                height: 30,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: color.withValues(alpha: progress > 0 ? 1 : 0.15),
+                  color: color.withValues(alpha: progress > 0 ? 1 : 0.12),
                   border: isToday
-                      ? Border.all(color: AppColors.accent, width: 1.5)
+                      ? Border.all(color: Colors.white, width: 1.5)
+                      : null,
+                  boxShadow: progress > 0.5
+                      ? [
+                          BoxShadow(
+                            color: color.withValues(alpha: 0.4),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
                       : null,
                 ),
                 child: progress >= 0.99
@@ -323,7 +452,7 @@ class _WeekStrip extends StatelessWidget {
 
 class _HabitCard extends StatelessWidget {
   final IconData icon;
-  final Color color;
+  final List<Color> gradient;
   final String title;
   final String valueText;
   final double progress;
@@ -331,7 +460,7 @@ class _HabitCard extends StatelessWidget {
 
   const _HabitCard({
     required this.icon,
-    required this.color,
+    required this.gradient,
     required this.title,
     required this.valueText,
     required this.progress,
@@ -346,16 +475,49 @@ class _HabitCard extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.surfaceBorder),
+        boxShadow: const [
+          BoxShadow(
+              color: AppColors.cardShadow,
+              blurRadius: 14,
+              offset: Offset(0, 6)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          HabitProgressRow(
-            icon: icon,
-            label: title,
-            valueText: valueText,
-            progress: progress,
-            color: color,
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: gradient,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: gradient.last.withValues(alpha: 0.4),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(icon, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: HabitProgressRow(
+                  icon: icon,
+                  label: title,
+                  valueText: valueText,
+                  progress: progress,
+                  color: gradient.last,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           child,
@@ -365,7 +527,7 @@ class _HabitCard extends StatelessWidget {
   }
 }
 
-class _QuickButton extends StatelessWidget {
+class _QuickButton extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
   final bool filled;
@@ -381,28 +543,53 @@ class _QuickButton extends StatelessWidget {
   });
 
   @override
+  State<_QuickButton> createState() => _QuickButtonState();
+}
+
+class _QuickButtonState extends State<_QuickButton> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    final c = color ?? AppColors.primary;
+    final c = widget.color ?? AppColors.primary;
     return Expanded(
       child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: filled ? c : AppColors.background,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: filled ? c : AppColors.surfaceBorder),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w700,
-              color: filled
-                  ? (darkText ? Colors.black : Colors.white)
-                  : AppColors.textSecondary,
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapCancel: () => setState(() => _pressed = false),
+        onTapUp: (_) => setState(() => _pressed = false),
+        onTap: widget.onTap,
+        child: AnimatedScale(
+          scale: _pressed ? 0.94 : 1.0,
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOut,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(vertical: 11),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: widget.filled ? c : AppColors.background,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                  color: widget.filled ? c : AppColors.surfaceBorder),
+              boxShadow: widget.filled
+                  ? [
+                      BoxShadow(
+                        color: c.withValues(alpha: 0.35),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Text(
+              widget.label,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: widget.filled
+                    ? (widget.darkText ? Colors.black : Colors.white)
+                    : AppColors.textSecondary,
+              ),
             ),
           ),
         ),
