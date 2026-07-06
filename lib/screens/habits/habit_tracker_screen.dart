@@ -3,7 +3,6 @@ import '../../models/habit_log.dart';
 import '../../services/habit_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app_header.dart';
-import '../../widgets/habit_progress_row.dart';
 import '../profile/profile_screen.dart';
 
 /// Habit Tracker — log Water Intake, Sleep, Protein, and Calories for
@@ -60,7 +59,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
   Future<void> _updateWater(int delta) async {
     final current = _today!;
     final updated = current.copyWith(
-      waterGlasses: (current.waterGlasses + delta).clamp(0, 99),
+      waterGlasses: (current.waterGlasses + delta).clamp(0, _waterGoal),
     );
     setState(() => _today = updated);
     await _habitService.saveLog(updated);
@@ -77,7 +76,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
   Future<void> _updateProtein(int delta) async {
     final current = _today!;
     final updated = current.copyWith(
-      proteinGrams: (current.proteinGrams + delta).clamp(0, 999),
+      proteinGrams: (current.proteinGrams + delta).clamp(0, _proteinGoal),
     );
     setState(() => _today = updated);
     await _habitService.saveLog(updated);
@@ -87,7 +86,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
   Future<void> _updateCalories(int delta) async {
     final current = _today!;
     final updated = current.copyWith(
-      caloriesKcal: (current.caloriesKcal + delta).clamp(0, 9999),
+      caloriesKcal: (current.caloriesKcal + delta).clamp(0, _caloriesGoal),
     );
     setState(() => _today = updated);
     await _habitService.saveLog(updated);
@@ -626,6 +625,7 @@ class _HabitCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 width: 40,
@@ -648,16 +648,50 @@ class _HabitCard extends StatelessWidget {
                 child: Icon(icon, color: Colors.white, size: 20),
               ),
               const SizedBox(width: 12),
+              // Title + value + progress bar, fully self-contained so it
+              // never overlaps regardless of available width (e.g. when
+              // the edit-goal icon takes up extra space on the right).
               Expanded(
-                child: HabitProgressRow(
-                  icon: icon,
-                  label: title,
-                  valueText: valueText,
-                  progress: progress,
-                  color: gradient.last,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      valueText,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary.withValues(alpha: 0.85),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(99),
+                      child: LinearProgressIndicator(
+                        value: progress.clamp(0.0, 1.0),
+                        minHeight: 6,
+                        backgroundColor: AppColors.surfaceBorder,
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(gradient.last),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              if (onEditGoal != null)
+              if (onEditGoal != null) ...[
+                const SizedBox(width: 4),
                 IconButton(
                   onPressed: onEditGoal,
                   icon: const Icon(Icons.edit_rounded, size: 16),
@@ -665,7 +699,11 @@ class _HabitCard extends StatelessWidget {
                   visualDensity: VisualDensity.compact,
                   splashRadius: 18,
                   tooltip: 'Edit goal',
+                  padding: EdgeInsets.zero,
+                  constraints:
+                      const BoxConstraints(minWidth: 28, minHeight: 28),
                 ),
+              ],
             ],
           ),
           const SizedBox(height: 16),
