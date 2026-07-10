@@ -15,5 +15,5 @@
 /// .gitignore so your key isn't committed publicly.
 class ApiKeys {
   static const String geminiApiKey =
-      '<YOUR_GEMINI_API_KEY>'; // Replace with your actual Gemini API key
+      'Your-Gemini-API-Key'; // Replace with your actual Gemini API key
 }

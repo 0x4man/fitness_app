@@ -207,7 +207,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                       const SizedBox(height: 6),
                       Text(
                         '${_filteredExercises.length} MOVES',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 1.2,
@@ -801,7 +801,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.add_task_rounded),
-                label: Text(
+                label: const Text(
                   'ADD TO TODAY\'S WORKOUT',
                   style: TextStyle(letterSpacing: 0.4),
                 ),
@@ -837,7 +837,7 @@ class _StatBlock extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.2,
