@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../models/exercise.dart';
+import '../models/dynamic_workout_models.dart';
 
 /// A single set being tracked for an exercise in the current
 /// in-progress workout session (before it's saved as a WorkoutLog).
@@ -46,6 +47,25 @@ class WorkoutSessionProvider extends ChangeNotifier {
         ),
       ),
     );
+    notifyListeners();
+  }
+
+  /// Loads the session straight from a Dynamic Workout Engine result,
+  /// replacing whatever's currently in progress. Unlike addExercise()
+  /// (which uses the catalog's default sets/reps), this uses each
+  /// PlannedExerciseItem's sets/reps exactly as the engine set them —
+  /// so a recovery-trimmed session shows up trimmed here too, not the
+  /// untouched library defaults.
+  void loadFromPlan(WorkoutPlan plan) {
+    _exercises
+      ..clear()
+      ..addAll(plan.exercises.map((item) => TrackedExercise(
+            exercise: item.exercise,
+            sets: List.generate(
+              item.sets,
+              (_) => TrackedSet(reps: item.reps),
+            ),
+          )));
     notifyListeners();
   }
 

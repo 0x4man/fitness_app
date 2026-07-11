@@ -5,11 +5,16 @@ import '../theme/app_theme.dart';
 /// (some toast packages break on newer Android/Flutter versions due
 /// to native embedding changes). This uses Flutter's built-in
 /// SnackBar, so there's no extra native dependency to break.
-void showAppMessage(BuildContext context, String message, {bool isError = true}) {
+void showAppMessage(BuildContext context, String message,
+    {bool isError = true}) {
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text(message),
+      content: Text(
+        message,
+        style:
+            const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+      ),
       backgroundColor: isError ? AppColors.error : AppColors.primary,
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

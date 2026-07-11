@@ -9,7 +9,9 @@ import '../../theme/app_theme.dart';
 import '../../widgets/app_header.dart';
 import '../../widgets/dashboard_stat_card.dart';
 import '../../widgets/habit_progress_row.dart';
+import '../habits/daily_checkin_screen.dart';
 import '../profile/profile_screen.dart';
+import '../workouts/workout_schedule_screen.dart';
 
 /// The main Home tab: branded header, greeting, BMI (calculated from
 /// the user's saved profile), a placeholder streak/today's-workout
@@ -84,6 +86,19 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     return (label: 'Obese', color: AppColors.error);
   }
 
+  void _openCheckIn() {
+    if (_profile == null) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => DailyCheckInScreen(profile: _profile!)),
+    );
+  }
+
+  void _openScheduleEditor() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const WorkoutScheduleScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -143,6 +158,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 // Quick-start CTA — premium gradient hero card
                 _QuickStartCard(
                     goal: _profile?.fitnessGoal, onTap: widget.onStartWorkout),
+                const SizedBox(height: 14),
+
+                // Daily Check-In — drives the Dynamic Workout Engine
+                _CheckInCard(
+                  onCheckIn: _openCheckIn,
+                  onEditSchedule: _openScheduleEditor,
+                ),
                 const SizedBox(height: 26),
 
                 // Stat cards grid
@@ -397,6 +419,84 @@ class _QuickStartCard extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Daily Check-In card — the entry point into the Dynamic Workout Engine.
+/// Matches the surface/border/shadow styling already used by the habit
+/// tracker card below it. A small calendar icon in the corner jumps to the
+/// weekly schedule editor instead, so both new screens are reachable from
+/// one place without touching the bottom nav.
+class _CheckInCard extends StatelessWidget {
+  final VoidCallback onCheckIn;
+  final VoidCallback onEditSchedule;
+
+  const _CheckInCard({required this.onCheckIn, required this.onEditSchedule});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onCheckIn,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(18, 16, 14, 16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.surfaceBorder, width: 1),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.cardShadow,
+              blurRadius: 16,
+              offset: Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(Icons.self_improvement_rounded,
+                  color: AppColors.primary),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Daily Check-In',
+                    style: TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Tell us how you feel to adapt today's plan",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary.withValues(alpha: 0.9),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              tooltip: 'Edit weekly schedule',
+              onPressed: onEditSchedule,
+              icon: const Icon(Icons.calendar_month_outlined,
+                  color: AppColors.textSecondary, size: 20),
             ),
           ],
         ),
