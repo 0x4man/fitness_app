@@ -38,6 +38,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   int _streak = 0;
   int _workoutsThisWeek = 0;
   bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -46,20 +47,35 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   Future<void> _loadData() async {
-    final results = await Future.wait([
-      _profileService.getProfile(),
-      _workoutLogService.getCurrentStreak(),
-      _workoutLogService.getWorkoutsThisWeek(),
-      _habitService.getTodayLog(),
-    ]);
-    if (mounted) {
-      setState(() {
-        _profile = results[0] as UserProfile?;
-        _streak = results[1] as int;
-        _workoutsThisWeek = results[2] as int;
-        _todayHabits = results[3] as HabitLog;
-        _isLoading = false;
-      });
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      final results = await Future.wait([
+        _profileService.getProfile(),
+        _workoutLogService.getCurrentStreak(),
+        _workoutLogService.getWorkoutsThisWeek(),
+        _habitService.getTodayLog(),
+      ]);
+      if (mounted) {
+        setState(() {
+          _profile = results[0] as UserProfile?;
+          _streak = results[1] as int;
+          _workoutsThisWeek = results[2] as int;
+          _todayHabits = results[3] as HabitLog;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('HomeDashboardScreen load error: $e');
+      if (mounted) {
+        setState(() {
+          _errorMessage = '$e';
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -104,6 +120,35 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_rounded,
+                    color: AppColors.error, size: 40),
+                const SizedBox(height: 12),
+                Text(
+                  'Could not load your dashboard.\n$_errorMessage',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      color: AppColors.textSecondary, fontSize: 12.5),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _loadData,
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
       );
     }
 

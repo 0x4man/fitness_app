@@ -47,7 +47,13 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       session.clear();
 
       if (!mounted) return;
-      Navigator.of(context).pop();
+      // Pop all the way back to the root route instead of a single pop.
+      // A single pop() would land back on whatever pushed this screen —
+      // e.g. the Daily Check-In form — which felt like the app was
+      // asking for "available time" all over again. This always returns
+      // straight to the main app shell (Home tab) regardless of how the
+      // workout was started (Workout Library, Daily Check-In, etc).
+      Navigator.of(context).popUntil((route) => route.isFirst);
       showAppMessage(context, 'Workout saved! 💪', isError: false);
     } catch (e) {
       if (mounted) showAppMessage(context, 'Could not save workout: $e');
@@ -73,7 +79,8 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
             onPressed: () {
               session.clear();
               Navigator.of(context).pop(); // close dialog
-              Navigator.of(context).pop(); // close screen
+              Navigator.of(context)
+                  .popUntil((route) => route.isFirst); // back to Home
             },
             child:
                 const Text('Discard', style: TextStyle(color: AppColors.error)),

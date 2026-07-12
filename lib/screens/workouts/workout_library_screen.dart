@@ -787,9 +787,15 @@ class _ExerciseDetailSheet extends StatelessWidget {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(alreadyAdded
-                          ? '${exercise.name} is already in today\'s workout'
-                          : '${exercise.name} added to today\'s workout'),
+                      content: Text(
+                        alreadyAdded
+                            ? '${exercise.name} is already in today\'s workout'
+                            : '${exercise.name} added to today\'s workout',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       backgroundColor: alreadyAdded
                           ? AppColors.textSecondary
                           : AppColors.primary,

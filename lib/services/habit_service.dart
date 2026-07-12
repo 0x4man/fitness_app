@@ -3,7 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../models/habit_log.dart';
 
 /// Handles Firestore reads/writes for daily habit tracking, stored at
-/// `users/{uid}/habits/{yyyy-MM-dd}`.
+/// `users/{uid}/habits/{yyyy-MM-dd}`, plus the user's persisted
+/// nutrition goals at `users/{uid}/settings/nutritionGoals` (a single
+/// doc, not per-day — a goal is a standing target, not a daily log).
 class HabitService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -12,6 +14,16 @@ class HabitService {
     final uid = _auth.currentUser?.uid;
     if (uid == null) return null;
     return _firestore.collection('users').doc(uid).collection('habits');
+  }
+
+  DocumentReference<Map<String, dynamic>>? get _nutritionGoalsDoc {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return null;
+    return _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('settings')
+        .doc('nutritionGoals');
   }
 
   String formatDate(DateTime date) {
@@ -62,4 +74,35 @@ class HabitService {
           : HabitLog.empty(dateStr);
     }).toList();
   }
+
+  /// The user's standing nutrition targets — persisted, so setting a
+  /// higher calorie goal (e.g. for a high-calorie / bulking diet) sticks
+  /// across app restarts instead of resetting to the default 2000kcal.
+  Future<Map<String, int>> getNutritionGoals() async {
+    final doc = _nutritionGoalsDoc;
+    if (doc == null) return _defaultNutritionGoals;
+    final snapshot = await doc.get();
+    if (!snapshot.exists || snapshot.data() == null)
+      return _defaultNutritionGoals;
+    final data = snapshot.data()!;
+    return {
+      'calories': (data['calories'] ?? HabitGoals.caloriesKcal) as int,
+      'protein': (data['protein'] ?? HabitGoals.proteinGrams) as int,
+      'carbs': (data['carbs'] ?? HabitGoals.carbsGrams) as int,
+      'fat': (data['fat'] ?? HabitGoals.fatGrams) as int,
+    };
+  }
+
+  Future<void> saveNutritionGoals(Map<String, int> goals) async {
+    final doc = _nutritionGoalsDoc;
+    if (doc == null) return;
+    await doc.set(goals, SetOptions(merge: true));
+  }
+
+  static const Map<String, int> _defaultNutritionGoals = {
+    'calories': HabitGoals.caloriesKcal,
+    'protein': HabitGoals.proteinGrams,
+    'carbs': HabitGoals.carbsGrams,
+    'fat': HabitGoals.fatGrams,
+  };
 }

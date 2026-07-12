@@ -22,6 +22,29 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
   late final List<Widget> _tabs;
 
+  static const _destinations = [
+    _NavItem(
+        icon: Icons.home_rounded,
+        outlineIcon: Icons.home_outlined,
+        label: 'Home'),
+    _NavItem(
+        icon: Icons.fitness_center_rounded,
+        outlineIcon: Icons.fitness_center_outlined,
+        label: 'Workouts'),
+    _NavItem(
+        icon: Icons.task_alt_rounded,
+        outlineIcon: Icons.task_alt_outlined,
+        label: 'Habits'),
+    _NavItem(
+        icon: Icons.auto_graph_rounded,
+        outlineIcon: Icons.show_chart_rounded,
+        label: 'Progress'),
+    _NavItem(
+        icon: Icons.person_rounded,
+        outlineIcon: Icons.person_outline_rounded,
+        label: 'Profile'),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -65,55 +88,119 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Color(0x14000000),
-              blurRadius: 20,
-              offset: Offset(0, -6),
-            ),
-          ],
-        ),
-        child: NavigationBar(
-          selectedIndex: _currentIndex,
-          onDestinationSelected: (index) =>
-              setState(() => _currentIndex = index),
-          backgroundColor: AppColors.surface,
-          indicatorColor: AppColors.primary.withValues(alpha: 0.12),
-          elevation: 0,
+      bottomNavigationBar: _PremiumBottomNav(
+        currentIndex: _currentIndex,
+        destinations: _destinations,
+        onTap: (index) => setState(() => _currentIndex = index),
+      ),
+    );
+  }
+}
+
+class _NavItem {
+  final IconData icon;
+  final IconData outlineIcon;
+  final String label;
+
+  const _NavItem(
+      {required this.icon, required this.outlineIcon, required this.label});
+}
+
+/// A custom bottom nav bar with a gradient pill behind the selected tab,
+/// replacing the default flat Material NavigationBar for a more premium,
+/// branded look consistent with the hero-gradient cards used elsewhere
+/// in the app (Daily Check-In card, progress rings, etc).
+class _PremiumBottomNav extends StatelessWidget {
+  final int currentIndex;
+  final List<_NavItem> destinations;
+  final ValueChanged<int> onTap;
+
+  const _PremiumBottomNav({
+    required this.currentIndex,
+    required this.destinations,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 20,
+            offset: Offset(0, -6),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: SizedBox(
           height: 66,
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home_rounded, color: AppColors.primary),
-              label: 'Home',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.fitness_center_outlined),
-              selectedIcon:
-                  Icon(Icons.fitness_center_rounded, color: AppColors.primary),
-              label: 'Workouts',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.checklist_outlined),
-              selectedIcon:
-                  Icon(Icons.checklist_rounded, color: AppColors.primary),
-              label: 'Habits',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.insights_outlined),
-              selectedIcon:
-                  Icon(Icons.insights_rounded, color: AppColors.primary),
-              label: 'Progress',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon:
-                  Icon(Icons.person_rounded, color: AppColors.primary),
-              label: 'Profile',
-            ),
-          ],
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(destinations.length, (index) {
+              final item = destinations[index];
+              final isSelected = index == currentIndex;
+              return Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => onTap(index),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 220),
+                        curve: Curves.easeOut,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 7),
+                        decoration: BoxDecoration(
+                          gradient: isSelected
+                              ? const LinearGradient(
+                                  colors: AppColors.heroGradient,
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                )
+                              : null,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: AppColors.primary
+                                        .withValues(alpha: 0.35),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: Icon(
+                          isSelected ? item.icon : item.outlineIcon,
+                          size: 22,
+                          color: isSelected
+                              ? Colors.white
+                              : AppColors.textSecondary.withValues(alpha: 0.8),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 220),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w500,
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.textSecondary.withValues(alpha: 0.8),
+                        ),
+                        child: Text(item.label),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ),
         ),
       ),
     );
